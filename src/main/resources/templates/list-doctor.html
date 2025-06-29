@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="/css/slick.css">
+    <link rel="stylesheet" href="/css/odometer.css">
+    <link rel="stylesheet" href="/css/lightgallery.min.css">
+    <link rel="stylesheet" href="/css/jquery.timepicker.min.css">
+    <link rel="stylesheet" href="/css/jquery-ui.css">
+    <link rel="stylesheet" href="/css/select2.min.css">
+    <link rel="stylesheet" href="/css/animated-headline.css">
+    <link rel="stylesheet" href="/css/doctor.css">
+    <link rel="stylesheet" th:href="@{css/style.css}">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Danh Sách Bác Sĩ</title>
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/pe-icon-7-stroke.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="css/rs6.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/progressbar.css">
+    <link rel="stylesheet" href="css/animations.min.css">
+    <link rel="stylesheet" href="css/magnific-popup.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/flaticon.css">
+    <link rel="stylesheet" href="css/ionicons.min.css">
+    <link rel="stylesheet" href="css/themify-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .alert-danger { font-size: 16px; font-weight: 500; margin-bottom: 15px; padding: 10px; border-radius: 8px; text-align: center; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block !important; }
+        .d-none { display: none !important; }
+        .doctors { padding: 2rem 0; background-color: #f8fafc; }
+        .cs_isotop {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 15px;
+        }
+        .cs_team.cs_style_1.cs_type_2 {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .cs_team.cs_style_1.cs_type_2:hover {
+            transform: translateY(-5px);
+        }
+        .cs_member_img {
+            position: relative;
+            flex-shrink: 0;
+            height: 160px;
+            overflow: hidden;
+        }
+        .cs_member_img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        .cs_member_img:hover img {
+            transform: scale(1.05);
+        }
+        .cs_label {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            max-width: 80%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cs_team_meta {
+            padding: 10px 8px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3px;
+        }
+        .cs_member_name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0061a9;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+        .cs_member_name a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .cs_member_name a:hover {
+            color: #3b82f6;
+        }
+        .cs_member_info {
+            font-size: 0.8rem;
+            color: #4b5563;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+        .cs_member_description {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+        .pagination { font-size: 16px; }
+        .pagination .page-item .page-link { color: #3b82f6; border: 1px solid #d1d5db; margin: 0 0.3rem; padding: 0.4rem 0.8rem; border-radius: 0.4rem; }
+        .pagination .page-item.active .page-link { background-color: #3b82f6; color: #ffffff; border-color: #3b82f6; }
+        .pagination .page-item.disabled .page-link { color: #d1d5db; cursor: not-allowed; }
+        .ui-autocomplete { z-index: 1000; max-height: 200px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .ui-menu-item { padding: 8px; cursor: pointer; }
+        .ui-menu-item:hover { background-color: #f0f0f0; }
+        .form-group { margin-bottom: 1.5rem; }
+        .search-wrapper { width: 100%; }
+        .search-input { width: 100%; height: 50px; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; font-weight: 500; line-height: 1.6; color: #374151; transition: border-color 0.3s ease, box-shadow 0.3s ease; box-sizing: border-box; }
+        .search-input::placeholder { color: #9ca3af; font-style: italic; }
+        .search-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .search-input:hover { border-color: #60a5fa; }
+        #chuyenKhoaId { margin-bottom: 0.75rem !important; width: 100%; height: 50px; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; line-height: 1.6; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="%23333" d="M7 10l5 5 5-5H7z"/></svg>') no-repeat right 0.75rem center/12px 12px; transition: border-color 0.3s ease; box-sizing: border-box; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        #chuyenKhoaId:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        #chuyenKhoaId option { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; }
+        .btn.box { background: linear-gradient(to right, #3b82f6, #60a5fa); color: #ffffff; font-weight: 500; font-size: 1rem; border: none; padding: 0.5rem 1.5rem; border-radius: 0.75rem; transition: background 0.3s ease; }
+        .btn.box:hover { background: linear-gradient(to right, #2563eb, #3b82f6); }
+        @media (max-width: 1024px) {
+            .cs_isotop { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+            .cs_team.cs_style_1.cs_type_2 { height: 280px; }
+            .cs_member_img { height: 140px; }
+            .cs_member_name { font-size: 0.95rem; }
+            .cs_member_info, .cs_member_description { font-size: 0.75rem; }
+            .cs_label { font-size: 0.7rem; padding: 3px 6px; }
+        }
+        @media (max-width: 640px) {
+            .doctors { padding: 1.5rem; }
+            .cs_isotop { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .cs_team.cs_style_1.cs_type_2 { height: 260px; }
+            .cs_member_img { height: 120px; }
+            .cs_member_name { font-size: 0.9rem; }
+            .cs_member_info, .cs_member_description { font-size: 0.7rem; }
+            .cs_label { font-size: 0.65rem; padding: 3px 6px; }
+            .search-input { font-size: 1rem; padding: 0.5rem 1rem; }
+            .btn.box { font-size: 0.875rem; padding: 0.4rem 1.2rem; }
+            .form-group { margin-bottom: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<header id="pq-header" class="pq-header-default">
+    <div th:replace="fragments/fragment :: loginBar"></div>
+    <div th:replace="fragments/fragment :: menu"></div>
+</header>
+<section class="doctors" id="doctors">
+    <form id="searchForm">
+        <div class="container bs-tk" style="margin-top: 20px;">
+            <div id="errorMessage" class="alert alert-danger d-none" role="alert" th:text="${errorMessage}"></div>
+            <div class="row align-items-center">
+                <div class="col-md-1"></div>
+                <div class="col-md-3">
+                    <h1 class="name" style="font-size: 24px; font-weight: 700; color: #0061a9; letter-spacing: 0.5px;">Tìm kiếm bác sỹ</h1>
+                </div>
+                <div class="col-md-6 col-12">
+                    <div class="form-group">
+                        <label for="chuyenKhoaId" class="form-label" style="font-size: 16px; font-weight: 600; color: #1f2937; letter-spacing: 0.3px;">Chuyên khoa</label>
+                        <select id="chuyenKhoaId" name="chuyenKhoaId" class="w-100">
+                            <option value="">Tất cả chuyên khoa</option>
+                        </select>
+                    </div>
+                    <div class="search-wrapper">
+                        <input id="searchInput" name="keyword" type="text" class="search-input w-100" placeholder="Tìm bác sỹ, bệnh viện..." th:value="${keyword}">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="justify-content: center; margin-top: 20px;">
+                <div class="col-md-4 col-12">
+                    <button type="submit" class="btn box" style="height: 50px; border-radius: 10px; font-size: 16px; font-weight: 600; padding: 0 2rem;">Tìm bác sỹ</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div id="dsBacSyContainer" class="container" style="margin-top: 20px;">
+        <div id="dsBacSy" class="cs_isotop"></div>
+        <p id="noResults" style="text-align: center; font-size: 20px; padding-top: 20px; display: none;">Không tìm thấy bác sĩ</p>
+    </div>
+    <nav style="display: flex; justify-content: center; margin-top: 20px;">
+        <ul id="pagination" class="pagination"></ul>
+    </nav>
+</section>
+<section th:replace="fragments/fragment :: footer"></section>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/owl.carousel.min.js"></script>
+<script src="js/progressbar.js"></script>
+<script src="js/isotope.pkgd.min.js"></script>
+<script src="js/jquery.countTo.min.js"></script>
+<script src="js/jquery.magnific-popup.min.js"></script>
+<script src="js/wow.min.js"></script>
+<script src="js/rbtools.min.js"></script>
+<script src="js/rs6.min.js"></script>
+<script src="js/rev-custom.js"></script>
+<script src="js/custom.js"></script>
+<script th:src="@{js/script.js}"></script>
+<script>
+    $(document).ready(function() {
+        let isJQueryUILoaded = false;
+        if (typeof $.ui === 'undefined') {
+            $("#errorMessage").text("Lỗi: jQuery UI không tải được! Vui lòng thử lại sau.").removeClass("d-none");
+            console.error("Lỗi: jQuery UI không tải được!");
+            $('#dsBacSy').empty();
+            $('#pagination').empty();
+            $('#noResults').hide();
+            return;
+        } else {
+            isJQueryUILoaded = true;
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const chuyenKhoaId = urlParams.get('chuyenKhoaId') || '';
+        const keyword = $("#searchInput").val() || urlParams.get('keyword') || '';
+        let currentPage = parseInt(urlParams.get('page')) || 1;
+        function loadChuyenKhoa() {
+            $.ajax({
+                url: '/api/chuyen-khoa',
+                method: 'GET',
+                success: function(data) {
+                    const select = $('#chuyenKhoaId');
+                    select.empty();
+                    select.append('<option value="">Tất cả chuyên khoa</option>');
+                    data.forEach(function(chuyenKhoa) {
+                        select.append(`<option value="${chuyenKhoa.id}" ${chuyenKhoa.id == chuyenKhoaId ? 'selected' : ''}>${chuyenKhoa.ten}</option>`);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    $("#errorMessage").text("Lỗi: Không thể tải danh sách chuyên khoa. Vui lòng thử lại sau.").removeClass("d-none");
+                    console.error("Lỗi khi gọi API chuyên khoa:", status, error);
+                    $('#dsBacSy').empty();
+                    $('#pagination').empty();
+                    $('#noResults').hide();
+                }
+            });
+        }
+        function searchDoctors(page = 1) {
+            if (!isJQueryUILoaded) {
+                $("#errorMessage").text("Lỗi: jQuery UI không tải được! Vui lòng thử lại sau.").removeClass("d-none");
+                $('#dsBacSy').empty();
+                $('#pagination').empty();
+                $('#noResults').hide();
+                return;
+            }
+            const chuyenKhoaId = $("#chuyenKhoaId").val().trim();
+            const keyword = $("#searchInput").val().trim();
+            const errorMessage = $("#errorMessage");
+            errorMessage.addClass("d-none").text("");
+            if (chuyenKhoaId && !/^\d+$/.test(chuyenKhoaId)) {
+                errorMessage.text("Lỗi: ID chuyên khoa không hợp lệ. Vui lòng chọn chuyên khoa từ danh sách.").removeClass("d-none");
+                $('#dsBacSy').empty();
+                $('#pagination').empty();
+                $('#noResults').hide();
+                return;
+            }
+            if (keyword.length > 50) {
+                errorMessage.text("Lỗi: Tên bác sĩ tìm kiếm quá dài (tối đa 50 ký tự).").removeClass("d-none");
+                $('#dsBacSy').empty();
+                $('#pagination').empty();
+                $('#noResults').hide();
+                return;
+            }
+            if (keyword && /[<>{}();"'`]/.test(keyword)) {
+                errorMessage.text("Lỗi: Từ khóa chứa ký tự không hợp lệ (ví dụ: <, >, ;, ').").removeClass("d-none");
+                $('#dsBacSy').empty();
+                $('#pagination').empty();
+                $('#noResults').hide();
+                return;
+            }
+            $.ajax({
+                url: '/api/bacsy/search',
+                method: 'GET',
+                data: {
+                    keyword: keyword,
+                    chuyenKhoaId: chuyenKhoaId,
+                    page: page,
+                    pageSize: 10
+                },
+                success: function(response) {
+                    $('#dsBacSy').empty();
+                    $('#noResults').hide();
+                    if (response.bacSyList && response.bacSyList.length > 0) {
+                        response.bacSyList.forEach(function(bacSy) {
+                            if (!bacSy.id) {
+                                errorMessage.text("Lỗi: Dữ liệu bác sĩ không hợp lệ (ID null).").removeClass("d-none");
+                                $('#dsBacSy').empty();
+                                $('#pagination').empty();
+                                $('#noResults').hide();
+                                return;
+                            }
+                            const tienKham = bacSy.tienKham ?
+                                bacSy.tienKham.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' VNĐ' :
+                                'Chưa có giá';
+                            const doctorHtml = `
+                                <div class="cs_isotop_item">
+                                    <div class="cs_team cs_style_1 cs_type_2 text-center">
+                                        <div class="cs_member_img">
+                                            <a href="/bac-sy/${bacSy.id}" class="d-block">
+                                                <img src="${bacSy.photo || 'https://via.placeholder.com/200x200'}"
+                                                     alt="${bacSy.hoTen || 'Bác sĩ'}"
+                                                     onerror="this.src='https://via.placeholder.com/200x200'">
+                                            </a>
+                                            <div class="cs_label cs_white_color">${bacSy.chuyenKhoa?.ten || 'Chưa có chuyên khoa'}</div>
+                                        </div>
+                                        <div class="cs_team_meta cs_white_bg">
+                                            <div>
+                                                <h3 class="cs_member_name">
+                                                    <a href="/bac-sy/${bacSy.id}">${bacSy.chucVu || ''} ${bacSy.hoTen || ''}</a>
+                                                </h3>
+                                                <p class="cs_member_info">${bacSy.noiKham || 'Chưa có thông tin'}</p>
+                                                <p class="cs_member_description">${tienKham}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            $('#dsBacSy').append(doctorHtml);
+                        });
+                    } else {
+                        $('#noResults').show();
+                    }
+                    $('#pagination').empty();
+                    if (response.totalPages > 0) {
+                        let paginationHtml = '';
+                        if (response.currentPage > 1) {
+                            paginationHtml += `
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="${response.currentPage - 1}">Trước</a>
+                                </li>`;
+                        } else {
+                            paginationHtml += `
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Trước</a>
+                                </li>`;
+                        }
+                        for (let i = 1; i <= response.totalPages; i++) {
+                            paginationHtml += `
+                                <li class="page-item ${i === response.currentPage ? 'active' : ''}">
+                                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                                </li>`;
+                        }
+                        if (response.currentPage < response.totalPages) {
+                            paginationHtml += `
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="${response.currentPage + 1}">Tiếp</a>
+                                </li>`;
+                        } else {
+                            paginationHtml += `
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Tiếp</a>
+                                </li>`;
+                        }
+                        $('#pagination').html(paginationHtml);
+                    }
+                    const newUrl = `${window.location.pathname}?keyword=${encodeURIComponent(keyword)}&chuyenKhoaId=${chuyenKhoaId}&page=${response.currentPage}`;
+                    window.history.pushState({}, '', newUrl);
+                },
+                error: function(xhr, status, error) {
+                    $("#errorMessage").text("Lỗi: Không thể tải danh sách bác sĩ. Vui lòng thử lại sau. Chi tiết: " + error).removeClass("d-none");
+                    console.error("Lỗi khi gọi API:", status, error);
+                    $('#dsBacSy').empty();
+                    $('#pagination').empty();
+                    $('#noResults').hide();
+                }
+            });
+        }
+        $("#searchForm").on("submit", function(event) {
+            event.preventDefault();
+            if (!isJQueryUILoaded) {
+                $("#errorMessage").text("Lỗi: jQuery UI không tải được! Vui lòng thử lại sau.").removeClass("d-none");
+                $('#dsBacSy').empty();
+                $('#pagination').empty();
+                $('#noResults').hide();
+                return;
+            }
+            currentPage = 1;
+            searchDoctors(currentPage);
+        });
+        $(document).on("click", ".page-link", function(event) {
+            event.preventDefault();
+            if (!isJQueryUILoaded) {
+                $("#errorMessage").text("Lỗi: jQuery UI không tải được! Vui lòng thử lại sau.").removeClass("d-none");
+                $('#dsBacSy').empty();
+                $('#pagination').empty();
+                $('#noResults').hide();
+                return;
+            }
+            const page = $(this).data("page");
+            if (page) {
+                currentPage = page;
+                searchDoctors(currentPage);
+            }
+        });
+        if (isJQueryUILoaded) {
+            loadChuyenKhoa();
+            searchDoctors(currentPage);
+        }
+    });
+</script>
+</body>
+</html>

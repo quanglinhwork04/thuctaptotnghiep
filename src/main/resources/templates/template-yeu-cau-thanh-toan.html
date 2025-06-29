@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yêu cầu thanh toán lịch khám</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #4a90e2;
+            color: #ffffff;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content p {
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .content .info {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .content .info p {
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Yêu cầu thanh toán lịch khám</h1>
+    </div>
+    <div class="content">
+        <p>Kính gửi <span th:text="${lichKham.benhNhan.hoTen}"></span>,</p>
+        <p>Chúng tôi đã nhận được yêu cầu đặt lịch khám của quý khách. Vui lòng hoàn tất thanh toán để xác nhận lịch khám.</p>
+        <div class="info">
+            <p><strong>ID lịch khám:</strong> <span th:text="${lichKham.id}"></span></p>
+            <p><strong>Bác sĩ:</strong> <span th:text="${lichKham.bacSy.hoTen}"></span></p>
+            <p><strong>Chuyên khoa:</strong> <span th:text="${lichKham.bacSy.chuyenKhoa.ten}"></span></p>
+            <p><strong>Ngày khám:</strong> <span th:text="${#dates.format(lichKham.ngayKham, 'dd/MM/yyyy')}"></span></p>
+            <p><strong>Khung giờ khám:</strong> <span th:text="${lichKham.khungGioKham}"></span></p>
+            <p><strong>Phí khám:</strong> <span th:text="${#numbers.formatDecimal(lichKham.tienKham, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
+        </div>
+        <p>Vui lòng truy cập trang web của chúng tôi để thực hiện thanh toán.</p>
+        <p>Nếu đã thanh toán, vui lòng liên hệ chúng tôi qua email <a href="mailto:support@clinic.vn">support@clinic.vn</a> hoặc số điện thoại 0329626107 để xác nhận.</p>
+        <p>Trân trọng,<br>Phòng khám MEDICATE</p>
+    </div>
+    <div class="footer">
+        <p>© 2025 MEDICATE. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Phòng Khám ABC</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" />
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- jQuery, Popper.js, Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f1f5f9 100%);
+        }
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            transition: background 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #2563eb, #3b82f6);
+        }
+        .social-links .google:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+<div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl">
+    <!-- Heading -->
+    <h1 class="text-3xl font-bold text-center text-blue-900 mb-6">
+        <span class="text-blue-600">Đăng</span> Nhập
+    </h1>
+
+    <!-- Error Messages -->
+    <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4 hidden" role="alert"></div>
+    <div th:if="${param.error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
+        Không thể đăng nhập. Vui lòng kiểm tra tài khoản và mật khẩu của bạn.
+    </div>
+
+    <!-- Login Form -->
+    <form th:action="@{/api/login}" method="POST" id="loginForm" class="space-y-6">
+        <!-- Username -->
+        <div>
+            <input type="text" class="form-control w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 transition duration-200 placeholder-gray-400" placeholder="Tài khoản" name="username" required>
+        </div>
+
+        <!-- Password -->
+        <div>
+            <input type="password" class="form-control w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 transition duration-200 placeholder-gray-400" placeholder="Mật khẩu" name="password" required>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="flex items-center justify-center">
+            <input class="form-check-input h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" type="checkbox" name="benhNhanId" id="rememberMe">
+            <label class="form-check-label ml-2 text-sm text-gray-600" for="rememberMe">Ghi nhớ tôi</label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Đăng Nhập
+        </button>
+
+        <!-- Alternative Text -->
+        <p class="text-center text-sm text-gray-500 mt-4">Hoặc đăng nhập với</p>
+
+        <!-- Google Login -->
+        <div class="social-links">
+            <a href="/oauth2/authorization/google" class="google flex items-center justify-center w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 font-medium text-sm hover:border-blue-500 transition duration-200">
+                <i class="fa fa-google fa-fw text-blue-600 mr-2"></i> Đăng nhập với Google
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript Logic (Giữ nguyên) -->
+<script>
+    $(document).ready(function() {
+        $('#loginForm').on('submit', function(e) {
+            e.preventDefault();
+            $('#errorMessage').addClass('hidden').text('');
+            $.ajax({
+                url: '/api/login',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    try {
+                        const data = response;
+                        if (data.token) {
+                            localStorage.setItem('jwtToken', data.token);
+                            window.location.href = data.redirect || '/';
+                        }
+                    } catch (e) {
+                        console.error('Lỗi xử lý phản hồi: ', e);
+                        window.location.href = '/';
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Lỗi đăng nhập: ', xhr.responseText);
+                    try {
+                        const errorData = JSON.parse(xhr.responseText);
+                        $('#errorMessage').text(errorData.error || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!').removeClass('hidden');
+                    } catch (e) {
+                        $('#errorMessage').text('Đăng nhập thất bại. Vui lòng kiểm tra lại!').removeClass('hidden');
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
