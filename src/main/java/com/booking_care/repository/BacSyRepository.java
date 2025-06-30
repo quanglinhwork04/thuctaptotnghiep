@@ -1,5 +1,6 @@
 package com.booking_care.repository;
 
+import com.booking_care.constant.ewewwewe.Status;
 import com.booking_care.model.BacSy;
 import com.booking_care.model.TaiKhoan;
 import com.booking_care.model.response.BacSyDto;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.Date;
 import java.util.List;
 
@@ -50,4 +52,14 @@ public interface BacSyRepository extends JpaRepository<BacSy, Integer> {
 
     @Query("SELECT b FROM BacSy b WHERE b.chuyenKhoa.id = :chuyenKhoaId AND b.taiKhoan.vaiTro.ten = :vaiTro")
     List<BacSy> findByChuyenKhoaIdAndTaiKhoanVaiTroTen(@Param("chuyenKhoaId") Integer chuyenKhoaId, @Param("vaiTro") String vaiTro);
+
+    // Thêm phương thức mới
+    boolean existsByIdAndChuyenKhoaId(Integer id, Integer chuyenKhoaId);
+
+    // Lấy danh sách bác sĩ có lịch trống theo chuyên khoa và khung giờ
+    @Query("SELECT b FROM BacSy b WHERE b.chuyenKhoa.id = :chuyenKhoaId AND b.id NOT IN (SELECT l.bacSy.id FROM LichKham l WHERE l.ngayKham = :ngayKham AND l.khungGioKham = :khungGioKham AND l.status NOT IN (:excludedStatuses))")
+    List<BacSy> findAvailableDoctorsByChuyenKhoaAndTime(@Param("chuyenKhoaId") Integer chuyenKhoaId, @Param("ngayKham") Date ngayKham, @Param("khungGioKham") Integer khungGioKham, @Param("excludedStatuses") List<Status> excludedStatuses);
+
+    @Query("SELECT b.id, COUNT(l.id) as waitingCount FROM BacSy b LEFT JOIN LuotKham l ON b.id = l.bacSy.id WHERE b.chuyenKhoa.id = :chuyenKhoaId AND l.trangThai = 'Chờ xử lý' AND l.ngayKham = :ngayKham GROUP BY b.id ORDER BY waitingCount ASC")
+    List<Object[]> findDoctorsWithWaitingCountByChuyenKhoaAndDate(Integer chuyenKhoaId, java.util.Date ngayKham);
 }

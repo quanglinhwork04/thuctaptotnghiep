@@ -1,34 +1,286 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/login.css}">
+    <title>Medicate – Đăng nhập Admin</title>
+    <!-- Favicon Icon -->
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/pe-icon-7-stroke.css">
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="/css/rs6.css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/progressbar.css">
+    <link rel="stylesheet" href="/css/animations.min.css">
+    <link rel="stylesheet" href="/css/magnific-popup.min.css">
+    <link rel="stylesheet" href="/css/all.min.css">
+    <link rel="stylesheet" href="/css/flaticon.css">
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <link rel="stylesheet" href="/css/themify-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 450px;
+        }
+        .form {
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-logo {
+            margin-bottom: 1.5rem;
+        }
+        .form-logo img {
+            width: 80px;
+            height: auto;
+        }
+        .form h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .form p.subtitle {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        .validationError {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .validationError i {
+            font-size: 1rem;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+        .form input[type="text"],
+        .form input[type="password"] {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #374151;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+        .form input[type="text"]:focus,
+        .form input[type="password"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: #ffffff;
+        }
+        .input-group i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover {
+            background: linear-gradient(to right, #2563eb, #3b82f6);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn .spinner {
+            display: none;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 0.5rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading span {
+            display: none;
+        }
+        .forgot-password {
+            display: block;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #3b82f6;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .forgot-password:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 1.5rem;
+                max-width: 100%;
+            }
+            .form {
+                padding: 2rem;
+            }
+            .form-logo img {
+                width: 60px;
+            }
+            .form h2 {
+                font-size: 1.5rem;
+            }
+            .form p.subtitle {
+                font-size: 0.85rem;
+            }
+            .form input[type="text"],
+            .form input[type="password"] {
+                font-size: 0.9rem;
+                padding: 0.75rem 1rem 0.75rem 2.25rem;
+            }
+            .btn {
+                font-size: 0.95rem;
+                padding: 0.75rem;
+            }
+        }
+    </style>
 </head>
 <body>
-
-
 <div class="container">
     <div class="form">
-        <h2>Trang đăng nhập cho admin</h2>
-        <div th:if="${param.error}" class="validationError">
-            <h4 style="color: red">Sai tên người dùng hoặc mật khẩu</h4>
+        <div class="form-logo">
+            <img src="/images/logo.png" alt="Medicate Logo" onerror="this.src='https://via.placeholder.com/80'">
         </div>
-        <form th:action="@{/admin/login}" method="POST">
-            <input type="text" name="username" placeholder="Username" />
-            <input type="password" name="password" placeholder="Password" />
-            <!-- Checkbox -->
-            <div class="form-check">
-                <label class="check">Remember me </label>
-                <input class="form-check-input" type="checkbox" name="adminId">
+        <h2>Đăng nhập Admin</h2>
+        <p class="subtitle">Vui lòng nhập thông tin để truy cập hệ thống</p>
+        <div id="error-message" class="validationError">
+            <i class="fas fa-exclamation-circle"></i>
+            <span></span>
+        </div>
+        <form id="login-form" method="POST">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input id="username-admin" type="text" name="username" placeholder="Tên người dùng" required />
             </div>
-            <input type="submit" value="Đăng nhập" class="btn">
-
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input id="password-admin" type="password" name="password" placeholder="Mật khẩu" required />
+            </div>
+            <button id="btnlogin-admin" type="submit" class="btn">
+                <span>Đăng nhập</span>
+                <span class="spinner"></span>
+            </button>
+            <a href="/forgot-password" class="forgot-password">Quên mật khẩu?</a>
         </form>
-
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#login-form').on('submit', function(event) {
+            event.preventDefault(); // Ngăn chặn submit form mặc định
+
+            var $form = $(this);
+            var $button = $form.find('#btnlogin-admin');
+            var $errorMessage = $('#error-message');
+            var username = $('#username-admin').val().trim();
+            var password = $('#password-admin').val().trim();
+
+            // Ẩn thông báo lỗi và bật trạng thái loading
+            $errorMessage.hide();
+            $button.addClass('loading').prop('disabled', true);
+
+            // Gửi yêu cầu AJAX đến API
+            $.ajax({
+                url: '/api/login/admin',
+                type: 'POST',
+                data: {
+                    username: username,
+                    password: password
+                },
+                success: function(response) {
+                    // Lưu token vào localStorage
+                    localStorage.setItem('token', response.token);
+                    // Chuyển hướng đến trang admin
+                    window.location.href = '/admin/home';
+                },
+                error: function(xhr) {
+                    // Xử lý lỗi
+                    var error = xhr.responseJSON ? xhr.responseJSON.error : 'Lỗi hệ thống, vui lòng thử lại';
+                    $errorMessage.find('span').text(error);
+                    $errorMessage.show();
+                    $button.removeClass('loading').prop('disabled', false);
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

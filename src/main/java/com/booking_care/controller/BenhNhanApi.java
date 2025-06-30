@@ -158,7 +158,12 @@ public class BenhNhanApi {
             @AuthenticationPrincipal CustomUserDetails taiKhoan,
             @Valid @RequestBody BookingRequest bookingRequest) throws ParseException {
 
+        Logger logger = LoggerFactory.getLogger(this.getClass());
         Map<String, Object> response = new HashMap<>();
+
+        logger.info("taiKhoan: {}, hasRole(BENH_NHAN): {}",
+                taiKhoan != null ? taiKhoan.getUsername() : null,
+                taiKhoan != null ? taiKhoan.hasRole("BENH_NHAN") : false);
 
         if (taiKhoan == null || !taiKhoan.hasRole("BENH_NHAN")) {
             response.put("error", "Vui lòng đăng nhập để đặt lịch");
@@ -196,13 +201,18 @@ public class BenhNhanApi {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        if (ngayKham.before(Date.from(LocalDate.now().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()))) {
-            response.put("error", "Không thể đặt lịch cho ngày trong quá khứ");
+        // Kiểm tra không cho phép đặt lịch cho ngày hiện tại hoặc quá khứ
+        LocalDate ngayKhamLocal = ngayKham.toInstant().atZone(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDate();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        if (ngayKhamLocal.isEqual(today) || ngayKhamLocal.isBefore(today)) {
+            response.put("error", "Không thể đặt lịch cho ngày hiện tại hoặc quá khứ");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        List<LichKham> lichKhamList = lichKhamRepo.findByNgayKhamAndBacSyIdAndKhungGioKham(
-                ngayKham, bookingRequest.getBacSyId(), bookingRequest.getKhungGioKham());
+        // Kiểm tra lịch khám trùng, chỉ xét các lịch ở trạng thái đang hoạt động
+        List<Status> activeStatuses = Arrays.asList(Status.CHO_XU_LY, Status.DA_XAC_NHAN, Status.DA_KHAM);
+        List<LichKham> lichKhamList = lichKhamRepo.findByNgayKhamAndBacSyIdAndKhungGioKhamAndStatusIn(
+                ngayKham, bookingRequest.getBacSyId(), bookingRequest.getKhungGioKham(), activeStatuses);
         if (!lichKhamList.isEmpty()) {
             response.put("error", "Giờ khám này đã được đặt. Vui lòng chọn giờ khác.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);

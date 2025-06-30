@@ -105,6 +105,14 @@ public class BacSyController {
             bacSy.setTienKham(0);
         }
         logger.info("tienKham của bác sĩ ID {}: {}", id, bacSy.getTienKham());
+
+        // Xử lý đường dẫn ảnh
+        if (bacSy.getPhoto() != null && !bacSy.getPhoto().isEmpty()) {
+            bacSy.setPhoto("/bacsy-photos/" + bacSy.getId() + "/" + bacSy.getPhoto()); // Thêm tiền tố đường dẫn
+        } else {
+            bacSy.setPhoto("/images/doctor_" + bacSy.getId() + ".png"); // Fallback nếu không có ảnh
+        }
+
         model.addAttribute("bacSy", bacSy);
         return "detail-doctor";
     }
@@ -311,6 +319,16 @@ public class BacSyController {
         List<LichKham> lichKhamList = lichKhamRepo.getLichKhamTrongTuan(bacSy.getId());
         model.addAttribute("lichKhamList", lichKhamList);
         return "bacsy/bacsy_thong_ke_lich_kham";
+    }
+
+    @GetMapping("/bacsy/dangKyLichKham")
+    @PreAuthorize("hasAuthority('BAC_SY')")
+    public String viewDangKyLichKham(@AuthenticationPrincipal CustomUserDetails taiKhoan) {
+        if (taiKhoan == null || !taiKhoan.hasRole("BAC_SY")) {
+            logger.error("Không có quyền truy cập hoặc tài khoản null");
+            return "redirect:/bacsy/login";
+        }
+        return "bacsy/dangKyLichKham"; // Trả về file dangKyLichKham.html
     }
 
 }

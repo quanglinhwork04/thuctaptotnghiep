@@ -1,166 +1,270 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml"><head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${bacSy != null ? bacSy.hoTen + ' - Chi tiết bác sĩ' : 'Chi tiết bác sĩ'}"></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- jQuery library -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.slim.min.js"></script>
-
-    <!-- Popper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <!-- In the <head> -->
-
-    <!-- Latest compiled JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <!-- custom css file link  -->
-    <title>Medicate – Health & Medical HTML Template</title>
-    <!-- Favicon Icon -->
-    <link rel="shortcut icon" href="images/favicon.ico">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- LOADING FONTS AND ICONS -->
-    <link rel="stylesheet" type="text/css" href="css/pe-icon-7-stroke.css">
-    <link rel="stylesheet" type="text/css" href="css/font-awesome.css">
-    <!-- REVOLUTION STYLE SHEETS -->
-    <link rel="stylesheet" type="text/css" href="css/rs6.css">
-    <!-- Owl Carousel CSS -->
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <!-- Progressbar CSS -->
-    <link rel="stylesheet" href="css/progressbar.css">
-    <!-- Animation CSS -->
-    <link rel="stylesheet" href="css/animations.min.css">
-    <!-- Magnefic Popup CSS -->
-    <link rel="stylesheet" href="css/magnific-popup.min.css">
-    <!-- Icons CSS -->
-    <link rel="stylesheet" href="css/all.min.css">
-    <link rel="stylesheet" href="css/flaticon.css">
-    <link rel="stylesheet" href="css/ionicons.min.css">
-    <link rel="stylesheet" href="css/themify-icons.css">
-    <!--  Style CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <!--  Responsive CSS -->
-    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="/css/doctor.css">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .doctor-detail {
+            padding: 3rem 0;
+        }
+        .doctor-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .doctor-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 12px 12px 0 0;
+        }
+        .doctor-info {
+            padding: 2rem;
+        }
+        .doctor-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0061a9;
+            margin-bottom: 0.5rem;
+        }
+        .doctor-specialty, .doctor-fee, .doctor-location, .doctor-experience {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+        .doctor-specialty i, .doctor-fee i, .doctor-location i, .doctor-experience i {
+            color: #3b82f6;
+            margin-right: 0.5rem;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0061a9;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .schedule-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .time-slot {
+            display: inline-block;
+            width: 90px;
+            height: 50px;
+            margin: 5px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+            background-color: #edf2f7;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #2d3748;
+        }
+        .time-slot.booked {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .time-slot:hover:not(.booked) {
+            background-color: #e2e8f0;
+        }
+        #timeSlots.empty {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #6b7280;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .doctor-detail {
+                padding: 2rem 1rem;
+            }
+            .doctor-img {
+                height: 200px;
+            }
+            .doctor-name {
+                font-size: 1.5rem;
+            }
+            .doctor-info, .schedule-section {
+                padding: 1.5rem;
+            }
+            .section-title {
+                font-size: 1.5rem;
+            }
+            .time-slot {
+                width: 70px;
+                height: 40px;
+                line-height: 40px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
-<!--loading End-->
-
-<!--=================================
- header start-->
-<header id="pq-header" class="pq-header-default ">
+<header id="pq-header" class="pq-header-default">
     <div th:replace="fragments/fragment :: loginBar"></div>
     <nav th:replace="fragments/fragment :: menu"></nav>
 </header>
-<!--==============
-   Header end
 
-     Footer start
-     ============================== -->
+<section class="doctor-detail" th:object="${bacSy}">
+    <div class="container">
+        <h1 class="section-title" th:text="${bacSy != null ? 'Thông tin bác sĩ ' + bacSy.hoTen : 'Thông tin bác sĩ'}"></h1>
+        <div class="doctor-card" th:if="${bacSy != null}">
+            <div class="cs_member_img">
+                <a href="#" class="d-block">
+                    <img th:src="${bacSy.photo != null ? bacSy.photo : 'https://via.placeholder.com/200x200'}"
+                         th:alt="${bacSy.hoTen != null ? 'Ảnh bác sĩ ' + bacSy.hoTen : 'Ảnh bác sĩ'}"
+                         class="doctor-img" />
+                </a>
+                <div class="cs_label" th:text="${bacSy.chuyenKhoa != null ? bacSy.chuyenKhoa.ten : 'Chưa có chuyên khoa'}"></div>
+            </div>
+            <div class="doctor-info">
+                <h2 class="doctor-name" th:text="${bacSy.chucVu != null ? bacSy.chucVu + ' ' : ''} + ${bacSy.hoTen != null ? bacSy.hoTen : 'Chưa có thông tin'}"></h2>
+                <p class="doctor-specialty"><i class="fas fa-stethoscope"></i> Chuyên khoa: <span th:text="${bacSy.chuyenKhoa != null ? bacSy.chuyenKhoa.ten : 'Chưa có thông tin'}"></span></p>
+                <p class="doctor-fee"><i class="fas fa-money-bill-wave"></i> Phí khám: <span th:text="${bacSy.tienKham != null ? #numbers.formatInteger(bacSy.tienKham, 3, 'POINT') + ' VNĐ' : 'Chưa có thông tin'}"></span></p>
+                <p class="doctor-location"><i class="fas fa-map-marker-alt"></i> Nơi khám: <span th:text="${bacSy.noiKham != null ? bacSy.noiKham : 'Chưa có thông tin'}"></span></p>
+                <p class="doctor-experience"><i class="fas fa-briefcase"></i> Kinh nghiệm: <span th:text="${bacSy.kinhNghiem != null ? bacSy.kinhNghiem + ' năm' : 'Chưa có thông tin'}"></span></p>
+            </div>
+        </div>
+        <div class="alert alert-warning" th:unless="${bacSy != null}">
+            Không tìm thấy thông tin bác sĩ.
+        </div>
+        <div class="schedule-section" th:if="${bacSy != null}">
+            <h3 class="section-title">Lịch khám</h3>
+            <div class="mb-3">
+                <label class="form-label">Chọn ngày khám</label>
+                <input class="form-control" type="date" id="ngayKham" />
+            </div>
+            <div>
+                <label class="form-label">Giờ khám</label>
+                <div id="timeSlots" class="d-flex flex-wrap justify-content-start"></div>
+                <div id="noSlotsMessage" class="empty" style="display: none;">Không có khung giờ nào khả dụng cho ngày này.</div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <section th:replace="fragments/fragment :: footer"></section>
-<!--Footer End-->
 
-<!--Back To Top start-->
-<div id="back-to-top">
-    <a class="topbtn" id="top" href="#top"> <i class="ion-ios-arrow-up"></i> </a>
-</div>
-<!--Back To Top End-->
-<!--jquery js-->
-<script src="js/jquery.min.js"></script>
-<!--bootstrap js-->
-<script src="js/bootstrap.min.js"></script>
-<!--owl-carousal-->
-<script src="js/owl.carousel.min.js"></script>
-<!--progress-bar js-->
-<script src="js/progressbar.js"></script>
-<!--isotope js-->
-<script src="js/isotope.pkgd.min.js"></script>
-<!--countTo js-->
-<script src="js/jquery.countTo.min.js"></script>
-<!--Maginfic-Popup js-->
-<script src="js/jquery.magnific-popup.min.js"></script>
-<!-- Animation JS -->
-<script src="js/wow.min.js"></script>
-<!-- Rev-Slider -->
-<script src="js/rbtools.min.js"></script>
-<script src="js/rs6.min.js"></script>
-<script src="js/rev-custom.js"></script>
-<!--custom js-->
-<script src="js/custom.js"></script>
-<script th:src="@{js/script.js}"></script>
-
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="/js/owl.carousel.min.js"></script>
+<script src="/js/custom.js"></script>
+<script th:src="@{/js/script.js}"></script>
 <script>
-    jQuery(window).on('load', function (e) {
-       jQuery(".pq-applyform .form-btn").click(function () {
-          var first_name = jQuery('#first-name').val();
-          var doctor_name = jQuery('#doctor-name').val();
-          var disease_name = jQuery('#disease-name').val();
-          var email = jQuery('#e-mail').val();
+    $(document).ready(function() {
+        const baseUrl = window.location.origin + "/";
+        const today = new Date('2025-06-30'); // Ngày hiện tại là 08:59 PM +07, 30/06/2025
+        const maxDate = new Date(today);
+        maxDate.setDate(today.getDate() + 6); // Giới hạn 7 ngày (đến 06/07/2025)
 
-          var result;
+        // Định dạng ngày cho input date
+        const formatDate = (date) => date.toISOString().split('T')[0];
 
-          jQuery('.pq-applyform .pq-message').remove();
-          jQuery('.pq-applyform .pq-thank-you-message').remove();
+        // Thiết lập min và max cho input ngày bằng JavaScript
+        $('#ngayKham').attr({
+            min: formatDate(today),
+            max: formatDate(maxDate)
+        });
 
-          if (first_name == '' || first_name == undefined) {
-             jQuery("<span class='pq-name-error-message pq-message'>Please fill the field</span>").insertAfter('.pq-applyform .name-field');
-             result = false;
-          }
-          else {
-             jQuery('.pq-name-error-message').remove();
-             result = true;
-          }
+        // Load lịch đã đặt khi thay đổi ngày
+        $('#ngayKham').on('change', function() {
+            const selectedDate = $(this).val();
+            if (selectedDate) {
+                loadBookedSlots(selectedDate);
+            } else {
+                $('#timeSlots').empty();
+                $('#noSlotsMessage').hide();
+            }
+        });
 
-          if (email == '' || email == undefined) {
-             jQuery("<span class='pq-email-error-message pq-message'>Please fill the field</span>").insertAfter('.pq-applyform .e-mail-field');
-             result = false;
-          }
-          else {
-             jQuery('.pq-email-error-message').remove();
-             result = true;
-          }
-
-          if (doctor_name == '' || doctor_name == undefined )
-          {
-             jQuery("<span class='pq-doctor-name-error-message pq-message'>Please fill the field</span>").insertAfter('.pq-applyform .doctor-name-field');
-             result = false;
-          }
-          else
-          {
-             jQuery('.pq-doctor-name-error-message').remove();
-             result = true;
-          }
-
-          if (disease_name == '' || disease_name == undefined )
-          {
-             jQuery("<span class='pq-disease-name-error-message pq-message'>Please fill the field</span>").insertAfter('.pq-applyform #disease-name');
-             result = false;
-          }
-          else
-          {
-             jQuery('.pq-disease-name-error-message').remove();
-             result = true;
-          }
-
-          if(result == true)
-          {
-             var email = jQuery("#email").text();
-             event.preventDefault();
-             jQuery.ajax({
-                type: "POST",
-                url: "mail.php",
-                data: {'email':email },
-                success: function(){
-                  jQuery("<span class='pq-thank-you-message pq-text-white ms-5'> Thank You For Filling The form</span>").insertAfter('.pq-applyform .pq-button');
-               }
+        // Hàm load các khung giờ đã booked từ DB
+        function loadBookedSlots(selectedDate) {
+            const bacSyId = $('input[name="bacSyId"]').val() || ${bacSy.id}; // Lấy ID bác sĩ
+            if (!bacSyId) {
+                console.error('Không tìm thấy ID bác sĩ');
+                return;
+            }
+            $('#timeSlots').empty();
+            $('#noSlotsMessage').hide();
+            $.ajax({
+                type: 'GET',
+                url: baseUrl + 'api/bacsy/danhSachLichKhamCuaToi',
+                contentType: 'application/json',
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwtToken') },
+                data: { bacSyId: bacSyId, ngayKham: selectedDate },
+                success: function(response) {
+                    console.log('Dữ liệu từ API:', response); // Debug dữ liệu từ API
+                    if (response && Array.isArray(response)) {
+                        if (response.length > 0) {
+                            response.forEach(schedule => {
+                                const $slot = $('<div>').addClass('time-slot')
+                                    .attr('data-time', schedule.khungGio)
+                                    .text(schedule.khungGio)
+                                    .on('click', function() {
+                                        if (!$(this).hasClass('booked')) {
+                                            alert('Đã chọn khung giờ: ' + schedule.khungGio);
+                                            // Thêm logic đặt lịch tại đây nếu cần
+                                        }
+                                    });
+                                $('#timeSlots').append($slot);
+                            });
+                        } else {
+                            $('#noSlotsMessage').show();
+                        }
+                    } else {
+                        console.error('Dữ liệu từ API không hợp lệ hoặc không phải mảng:', response);
+                        $('#timeSlots').html('<div class="empty">Không thể tải khung giờ.</div>');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Lỗi khi tải lịch từ DB: ', xhr.responseText);
+                    $('#timeSlots').html('<div class="empty">Lỗi khi tải lịch.</div>');
+                }
             });
-          }
-       });
+        }
+
+        // Không load mặc định khi trang tải, chỉ khi chọn ngày
+        $('#ngayKham').val(''); // Xóa giá trị mặc định
+
+        // Thêm input ẩn để truyền bacSy.id
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'bacSyId',
+            value: ${bacSy.id}
+        }).appendTo('body');
     });
 </script>
-
-
-<script>'undefined'=== typeof _trfq || (window._trfq = []);'undefined'=== typeof _trfd && (window._trfd=[]),_trfd.push({'tccl.baseHost':'secureserver.net'},{'ap':'cpbh-mt'},{'server':'sg2plmcpnl492384'},{'dcenter':'sg2'},{'cp_id':'9858662'},{'cp_cache':''},{'cp_cl':'8'}) // Monitoring performance to make your website faster. If you want to opt-out, please contact web hosting support.</script><script src="js/scc-c2.min.js"></script></body></html>
+</body>
+</html>

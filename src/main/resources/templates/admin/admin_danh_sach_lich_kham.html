@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng điều khiển bác sỹ</title>
+    <title>Danh sách lịch khám - Admin</title>
     <!-- Bootstrap 4.6 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <!-- Font Awesome 5.15 -->
@@ -15,15 +15,15 @@
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary: #1e3a8a; /* Deep blue for professionalism */
-            --secondary: #64748b; /* Neutral slate for text */
-            --background: #f1f5f9; /* Clean, light background */
-            --text: #1e293b; /* Dark text for readability */
-            --success: #10b981; /* Vibrant green */
-            --warning: #f59e0b; /* Warm amber */
-            --info: #06b6d4; /* Bright cyan */
-            --white: #ffffff; /* White for cards */
-            --accent: #f8fafc; /* Subtle accent for headers */
+            --primary: #1e3a8a;
+            --secondary: #64748b;
+            --background: #f1f5f9;
+            --text: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --white: #ffffff;
+            --accent: #f8fafc;
         }
 
         html, body {
@@ -37,14 +37,14 @@
             color: var(--text);
             display: flex;
             flex-direction: column;
-            padding-top: 80px; /* Space for fixed navbar */
+            padding-top: 80px;
         }
 
         .content-wrapper {
             padding: 3rem 1.5rem;
             width: 100%;
             flex: 1 0 auto;
-            max-width: 1400px; /* Constrain content width */
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -130,7 +130,7 @@
         }
 
         .table-responsive {
-            overflow-x: visible; /* Remove horizontal scrolling */
+            overflow-x: auto;
         }
 
         .table {
@@ -148,7 +148,7 @@
             font-weight: 500;
             font-size: 0.9rem;
             color: var(--white);
-            padding: 1rem 0.5rem; /* Reduced padding for tighter fit */
+            padding: 1rem 0.5rem;
             background: var(--primary);
             border-bottom: none;
             text-transform: uppercase;
@@ -163,13 +163,13 @@
         .table td {
             vertical-align: middle;
             font-size: 0.95rem;
-            padding: 1rem 0.5rem; /* Reduced padding for tighter fit */
+            padding: 1rem 0.5rem;
             border-bottom: 1px solid #e2e8f0;
             color: var(--text);
             transition: background-color 0.2s ease;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Handle long content gracefully */
+            text-overflow: ellipsis;
             text-align: center;
         }
 
@@ -177,47 +177,25 @@
             background-color: #f0f4f8;
         }
 
-        /* Flexible column widths */
-        .table th:nth-child(1), .table td:nth-child(1) { /* ID */
-            width: 5%;
-        }
-        .table th:nth-child(2), .table td:nth-child(2) { /* Họ Tên Bệnh Nhân */
-            width: 15%;
-        }
-        .table th:nth-child(3), .table td:nth-child(3) { /* Số Điện Thoại */
-            width: 10%;
-        }
-        .table th:nth-child(4), .table td:nth-child(4) { /* Email */
-            width: 20%;
-            max-width: 200px; /* Limit email column width */
-        }
-        .table th:nth-child(5), .table td:nth-child(5) { /* Thời Gian Đăng Ký */
-            width: 15%;
-        }
-        .table th:nth-child(6), .table td:nth-child(6) { /* Ngày Khám */
-            width: 12%;
-        }
-        .table th:nth-child(7), .table td:nth-child(7) { /* Khung Giờ */
-            width: 8%;
-        }
-        .table th:nth-child(8), .table td:nth-child(8) { /* Trạng Thái */
-            width: 10%;
-        }
-        .table th:nth-child(9), .table td:nth-child(9) { /* Hành Động */
-            width: 10%;
-            min-width: 100px; /* Ensure enough space for button */
-        }
+        .table th:nth-child(1), .table td:nth-child(1) { width: 5%; }
+        .table th:nth-child(2), .table td:nth-child(2) { width: 15%; }
+        .table th:nth-child(3), .table td:nth-child(3) { width: 15%; } /* Bác sĩ */
+        .table th:nth-child(4), .table td:nth-child(4) { width: 10%; }
+        .table th:nth-child(5), .table td:nth-child(5) { width: 20%; max-width: 200px; }
+        .table th:nth-child(6), .table td:nth-child(6) { width: 15%; }
+        .table th:nth-child(7), .table td:nth-child(7) { width: 12%; }
+        .table th:nth-child(8), .table td:nth-child(8) { width: 8%; }
+        .table th:nth-child(9), .table td:nth-child(9) { width: 10%; }
+        .table th:nth-child(10), .table td:nth-child(10) { width: 10%; min-width: 100px; }
 
         .btn-success {
-            ..
-
             background: linear-gradient(45deg, var(--success), #34d399);
             border: none;
             font-family: 'Inter', sans-serif;
             font-size: 0.9rem;
             font-weight: 500;
             border-radius: 8px;
-            padding: 0.5rem 1rem; /* Smaller padding for button */
+            padding: 0.5rem 1rem;
             color: var(--white);
             transition: all 0.3s ease;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
@@ -265,6 +243,7 @@
             right: 40px;
             opacity: 0.9;
             transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+            z-index: 1100;
         }
 
         .scroll-to-top:hover {
@@ -273,58 +252,45 @@
             background: #1e40af;
         }
 
-        .modal-content {
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-            border: none;
-        }
-
-        .modal-header {
-            background: var(--primary);
-            color: var(--white);
-            border-bottom: none;
-            border-radius: 12px 12px 0 0;
-            padding: 1.25rem 1.75rem;
-        }
-
-        .modal-title {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 1.25rem;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-            font-size: 1rem;
-            color: var(--text);
-        }
-
-        .modal-footer {
-            border-top: none;
-            padding: 1rem 1.5rem;
-            background: var(--accent);
-            border-radius: 0 0 12px 12px;
-        }
-
-        .btn-secondary {
-            background: var(--secondary);
-            border: none;
-            color: var(--white);
-            font-weight: 500;
+        .form-control {
             border-radius: 8px;
-            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            border: 1px solid #d1d5db;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.5rem 0.75rem;
+            margin: 0 0.25rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: var(--white);
+            color: var(--text);
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
-        .btn-secondary:hover {
-            background: #4b5563;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
         }
 
-        /* Ẩn các thành phần phân trang và menu chọn số bản ghi */
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_paginate {
-            display: none !important;
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
         }
 
         @media (max-width: 992px) {
@@ -358,7 +324,7 @@
                 font-size: 0.9rem;
                 padding: 0.75rem 1rem;
             }
-            .table th:nth-child(4), .table td:nth-child(4) { /* Email */
+            .table th:nth-child(5), .table td:nth-child(5) {
                 max-width: 150px;
             }
         }
@@ -385,7 +351,7 @@
                 bottom: 20px;
                 right: 20px;
             }
-            .table th:nth-child(4), .table td:nth-child(4) { /* Email */
+            .table th:nth-child(5), .table td:nth-child(5) {
                 max-width: 100px;
             }
         }
@@ -393,7 +359,7 @@
 </head>
 <body id="page-top">
 <!-- Navigation -->
-<div th:replace="fragments/fragment :: navBacSy"></div>
+<div th:replace="fragments/fragment :: navAdmin"></div>
 
 <!-- Content -->
 <div class="content-wrapper">
@@ -401,21 +367,65 @@
         <!-- Breadcrumbs -->
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="#">Quản lí lịch khám bệnh</a>
+                <a href="/admin/lich-kham-bac-sy">Quản lý lịch khám</a>
             </li>
-            <li class="breadcrumb-item active">Xem lịch khám</li>
+            <li class="breadcrumb-item active">Danh sách lịch khám</li>
         </ol>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-header">Bộ lọc</div>
+            <div class="card-body">
+                <form th:action="@{/admin/lich-kham-bac-sy}" method="get" class="form-inline">
+                    <div class="form-group mb-2 mr-3">
+                        <label for="ngayKham" class="mr-2">Ngày khám</label>
+                        <input type="date" class="form-control" id="ngayKham" name="ngayKham" th:value="${ngayKham}">
+                    </div>
+                    <div class="form-group mb-2 mr-3">
+                        <label for="bacSyId" class="mr-2">Bác sĩ</label>
+                        <select class="form-control" id="bacSyId" name="bacSyId">
+                            <option value="">Tất cả bác sĩ</option>
+                            <option th:each="bacSy : ${bacSyList}" th:value="${bacSy.id}" th:text="${bacSy.hoTen}" th:selected="${bacSy.id == selectedBacSyId}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-2 mr-3">
+                        <label for="chuyenKhoaId" class="mr-2">Chuyên khoa</label>
+                        <select class="form-control" id="chuyenKhoaId" name="chuyenKhoaId">
+                            <option value="">Tất cả chuyên khoa</option>
+                            <option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.id}" th:text="${chuyenKhoa.ten}" th:selected="${chuyenKhoa.id == selectedChuyenKhoaId}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-2 mr-3">
+                        <label for="status" class="mr-2">Trạng thái</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="CHO_XU_LY" th:selected="${status == 'CHO_XU_LY'}">Chờ xử lý</option>
+                            <option value="DA_XAC_NHAN" th:selected="${status == 'DA_XAC_NHAN'}">Đã xác nhận</option>
+                            <option value="DA_KHAM" th:selected="${status == 'DA_KHAM'}">Đã khám</option>
+                            <option value="DA_HUY" th:selected="${status == 'DA_HUY'}">Đã hủy</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-2 mr-3">
+                        <label for="search" class="mr-2">Tìm kiếm</label>
+                        <input type="text" class="form-control" id="search" name="search" th:value="${search}" placeholder="Tên bệnh nhân, email...">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Lọc</button>
+                </form>
+            </div>
+        </div>
 
         <!-- DataTables Card -->
         <div class="card mb-4">
             <div class="card-header">Danh sách lịch khám</div>
             <div class="card-body p-3">
+                <p class="alert alert-danger" th:if="${error}" th:text="${error}" role="alert"></p>
                 <div class="table-responsive">
                     <table class="table" id="dataTable" cellspacing="0">
                         <thead>
                         <tr>
                             <th>ID</th>
                             <th>Họ Tên Bệnh Nhân</th>
+                            <th>Bác sĩ</th>
                             <th>Số Điện Thoại</th>
                             <th>Email</th>
                             <th>Thời Gian Đăng Ký</th>
@@ -426,9 +436,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="lichKham : ${lichKhamList}">
+                        <tr th:each="lichKham : ${lichKhamPage.content}">
                             <td th:text="${lichKham.id}"></td>
                             <td th:text="${lichKham.benhNhan.hoTen}"></td>
+                            <td th:text="${lichKham.bacSy.hoTen}"></td>
                             <td th:text="${lichKham.benhNhan.sdt}"></td>
                             <td th:text="${lichKham.benhNhan.email}"></td>
                             <td th:text="${#dates.format(lichKham.thoiGianDk, 'dd/MM/yyyy HH:mm')}"></td>
@@ -452,13 +463,27 @@
                             </td>
                             <td th:text="${lichKham.status.getValue()}"></td>
                             <td>
-                                <a id="btn-xem" th:href="@{/bacsy/xemChiTietLichKham(id=${lichKham.id})}" class="btn btn-success btn-sm" aria-label="Xem chi tiết lịch khám">
+                                <a th:href="@{/admin/chi-tiet-lich-kham-bac-sy(id=${lichKham.id})}" class="btn btn-success btn-sm" aria-label="Xem chi tiết lịch khám">
                                     <i class="fas fa-eye"></i> Xem
                                 </a>
                             </td>
                         </tr>
                         </tbody>
                     </table>
+                </div>
+                <!-- Pagination -->
+                <div th:if="${lichKhamPage.totalPages > 1}" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${lichKhamPage.number == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/lich-kham-bac-sy(page=${lichKhamPage.number - 1}, size=${lichKhamPage.size}, ngayKham=${ngayKham}, bacSyId=${selectedBacSyId}, chuyenKhoaId=${selectedChuyenKhoaId}, search=${search}, orderDir=${orderDir}, orderColumn=${orderColumn}, status=${status})}">Previous</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, lichKhamPage.totalPages - 1)}" th:classappend="${i == lichKhamPage.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/lich-kham-bac-sy(page=${i}, size=${lichKhamPage.size}, ngayKham=${ngayKham}, bacSyId=${selectedBacSyId}, chuyenKhoaId=${selectedChuyenKhoaId}, search=${search}, orderDir=${orderDir}, orderColumn=${orderColumn}, status=${status})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${lichKhamPage.number == lichKhamPage.totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/lich-kham-bac-sy(page=${lichKhamPage.number + 1}, size=${lichKhamPage.size}, ngayKham=${ngayKham}, bacSyId=${selectedBacSyId}, chuyenKhoaId=${selectedChuyenKhoaId}, search=${search}, orderDir=${orderDir}, orderColumn=${orderColumn}, status=${status})}">Next</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -481,11 +506,10 @@
 
 <!-- Scroll to Top -->
 <a class="scroll-to-top rounded" href="#page-top">
-    <i class=" Oto Top"></i>
+    <i class="fas fa-angle-up"></i>
 </a>
 
 <!-- Logout Modal -->
-<div th:replace="fragments/fragment :: logoutModalBacSy"></div>
 <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -496,7 +520,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p th:if="${loi}" th:text="${loi}"></p>
+                <p th:if="${error}" th:text="${error}"></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
@@ -512,15 +536,15 @@
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js" defer></script>
 <script>
     $(document).ready(function() {
-        // Kiểm tra xem bảng đã được khởi tạo DataTables chưa
+        // Initialize DataTables
         if (!$.fn.DataTable.isDataTable('#dataTable')) {
             $('#dataTable').DataTable({
-                searching: false, // Tắt tìm kiếm
-                lengthChange: false, // Tắt menu chọn số bản ghi
-                paging: false, // Tắt phân trang
-                info: false, // Tắt thông tin "Hiển thị _START_ đến _END_"
-                dom: 't', // Chỉ hiển thị bảng
-                ordering: true, // Cho phép sắp xếp cột
+                searching: false,
+                lengthChange: false,
+                paging: false,
+                info: false,
+                dom: 't',
+                ordering: true,
                 language: {
                     emptyTable: "Không có lịch khám nào"
                 }
@@ -533,8 +557,8 @@
             $('html, body').animate({ scrollTop: 0 }, 500);
         });
 
-        // Hiển thị modal lỗi nếu có
-        var error = /*[[${loi}]]*/ '';
+        // Show error modal if error exists
+        var error = /*[[${error}]]*/ '';
         if (error) {
             $('#errorModal').modal('show');
         }

@@ -27,7 +27,7 @@ public class LichKham {
 
 	private Integer tienKham;
 
-	private boolean isPaid;
+	private Integer orderNumber; // Trường mới để quản lý thứ tự lượt khám
 
 	@ManyToOne
 	@JoinColumn(name = "id_bac_sy")
@@ -41,7 +41,7 @@ public class LichKham {
 	private String chanDoan;
 
 	@PrePersist
-	void prePresit() {
+	void prePersist() {
 		this.thoiGianDk = new Date();
 	}
 
@@ -109,14 +109,6 @@ public class LichKham {
 		this.tienKham = tienKham;
 	}
 
-	public boolean isPaid() {
-		return isPaid;
-	}
-
-	public void setPaid(boolean isPaid) {
-		this.isPaid = isPaid;
-	}
-
 	public BacSy getBacSy() {
 		return bacSy;
 	}
@@ -139,5 +131,13 @@ public class LichKham {
 
 	public void setChanDoan(String chanDoan) {
 		this.chanDoan = chanDoan;
+	}
+
+	public Integer getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(Integer orderNumber) {
+		this.orderNumber = orderNumber;
 	}
 }

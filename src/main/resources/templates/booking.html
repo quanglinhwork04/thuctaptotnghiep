@@ -34,9 +34,9 @@
   <link rel="stylesheet" href="css/flaticon.css">
   <link rel="stylesheet" href="css/ionicons.min.css">
   <link rel="stylesheet" href="css/themify-icons.css">
-  <!--  Style CSS -->
+  <!-- Style CSS -->
   <link rel="stylesheet" href="css/style.css">
-  <!--  Responsive CSS -->
+  <!-- Responsive CSS -->
   <link rel="stylesheet" href="css/responsive.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
@@ -292,9 +292,10 @@
         showError("Vui lòng chọn ngày khám.");
         return;
       }
+      // Kiểm tra ngày hiện tại và quá khứ
       const today = new Date().toISOString().split('T')[0];
-      if (formData.ngayKham < today) {
-        showError("Không thể chọn ngày trong quá khứ.");
+      if (formData.ngayKham <= today) {
+        showError("Không thể chọn ngày hiện tại hoặc trong quá khứ.");
         return;
       }
       const year = parseInt(formData.ngayKham.split('-')[0], 10);
@@ -336,7 +337,9 @@
         data: JSON.stringify(formData),
         success: function(response) {
           $('#message').removeClass('d-none').addClass('alert-success').text(response.success || 'Đặt lịch thành công!');
-          setTimeout(() => { window.location.href = '/'; }, 2000);
+          $('#bookingForm')[0].reset(); // Reset form
+          $('.bac-sy').empty().append('<option value="0">Chọn bác sỹ</option>'); // Reset danh sách bác sĩ
+          $('#tienKham1').val(''); // Reset giá khám
         },
         error: function(xhr) {
           let errorMsg = 'Đặt lịch thất bại. Vui lòng thử lại!';

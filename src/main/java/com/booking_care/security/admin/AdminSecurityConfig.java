@@ -1,59 +1,83 @@
 package com.booking_care.security.admin;
 
-import com.booking_care.security.bac_sy.BacSyDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.*;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.*;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@Order(1)
-public class AdminSecurityConfig extends WebSecurityConfigurerAdapter{
+@EnableWebSecurity
+@Order(2)
+public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
+
     @Autowired
-    PasswordEncoder passwordEncoder;
+    @Qualifier("adminDetailsServiceImpl")
+    private UserDetailsService adminDetailsService;
 
     @Bean
-    public UserDetailsService adminDetailsService() {
-        return new AdminDetailsServiceImpl();
+    public PasswordEncoder adminPasswordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
     }
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider1() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(adminDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder);
+        authProvider.setUserDetailsService(adminDetailsService);
+        authProvider.setPasswordEncoder(adminPasswordEncoder());
         return authProvider;
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.authorizeRequests().antMatchers("/").permitAll();
-        http.authenticationProvider(authenticationProvider1());
-        http.authorizeRequests().antMatchers("/js/**","/css/**","/admin/login").permitAll();
-        http.antMatcher("/admin/**").authorizeRequests().anyRequest().hasAuthority("ADMIN");
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authenticationProvider1());
+    }
 
+    @Bean(name = "adminAuthenticationManagerBean")
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
+                .requestMatcher(request -> request.getRequestURI().startsWith("/admin") || request.getRequestURI().startsWith("/api/login/admin"))
+                .authorizeRequests()
+                .antMatchers("/api/login/admin", "/admin/login", "/(js|css|images)/**").permitAll()
+                .antMatchers("/admin/**").hasAuthority("ADMIN")
+                .anyRequest().authenticated()
+                .and()
                 .formLogin()
                 .loginPage("/admin/login")
-                .usernameParameter("username").passwordParameter("password")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .loginProcessingUrl("/admin/login")
-                .defaultSuccessUrl("/admin/home",true)
+                .defaultSuccessUrl("/admin/home", true)
                 .permitAll()
                 .and()
                 .logout()
                 .logoutUrl("/admin/logout")
-                .logoutSuccessUrl("/admin/login").and()
-                .exceptionHandling().accessDeniedPage("/403");
-
-        http.rememberMe().rememberMeParameter("adminId")
-                .rememberMeCookieName("adminId").key("aaaaa")
-                .tokenValiditySeconds(1296000).userDetailsService(adminDetailsService());
-
+                .logoutSuccessUrl("/admin/login")
+                .permitAll()
+                .and()
+                .exceptionHandling().accessDeniedPage("/403")
+                .and()
+                .rememberMe()
+                .rememberMeParameter("adminId")
+                .rememberMeCookieName("adminId")
+                .key("aaaaa")
+                .tokenValiditySeconds(1296000)
+                .userDetailsService(adminDetailsService);
     }
 }

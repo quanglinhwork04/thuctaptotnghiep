@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.SendFailedException;
 import javax.mail.internet.InternetAddress;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,6 +58,9 @@ public class BacSyRestApi {
 
     @Autowired
     private ChiTietToaThuocRepository chiTietToaThuocRepo;
+
+    @Autowired
+    private LichKhamBacSyRepository lichKhamBacSyRepository;
 
     @Autowired
     private EmailSenderService emailSenderService;
@@ -118,7 +122,6 @@ public class BacSyRestApi {
     @GetMapping("/getAllBacSy/chuyenKhoa/{idChuyenKhoa}")
     public ResponseEntity<?> getAllBacSyByChuyenKhoa(@PathVariable("idChuyenKhoa") Integer idChuyenKhoa) {
         try {
-            // Kiểm tra idChuyenKhoa hợp lệ
             if (idChuyenKhoa == null || idChuyenKhoa <= 0) {
                 Map<String, String> response = new HashMap<>();
                 response.put("error", "ID chuyên khoa không hợp lệ.");
@@ -126,7 +129,6 @@ public class BacSyRestApi {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Kiểm tra chuyên khoa tồn tại
             if (!chuyenKhoaRepo.existsById(idChuyenKhoa)) {
                 Map<String, String> response = new HashMap<>();
                 response.put("error", "Chuyên khoa không tồn tại.");
@@ -134,7 +136,6 @@ public class BacSyRestApi {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            // Lấy danh sách bác sĩ theo chuyên khoa và vai trò BAC_SY
             List<BacSy> bacSyList = bacSyRepo.findByChuyenKhoaIdAndTaiKhoanVaiTroTen(idChuyenKhoa, "BAC_SY");
             if (bacSyList.isEmpty()) {
                 Map<String, String> response = new HashMap<>();
@@ -145,7 +146,6 @@ public class BacSyRestApi {
 
             logger.info("Lấy thành công {} bác sĩ cho chuyên khoa ID: {}", bacSyList.size(), idChuyenKhoa);
             return ResponseEntity.ok(bacSyList);
-
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
             response.put("error", "Lỗi hệ thống khi lấy danh sách bác sĩ: " + e.getMessage());
@@ -153,7 +153,6 @@ public class BacSyRestApi {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
 
     @GetMapping("/bacsy/{id}")
     public ResponseEntity<BacSy> getBacSyApi(@PathVariable Integer id) {
@@ -187,12 +186,10 @@ public class BacSyRestApi {
             @RequestParam(value = "chuyenKhoaId", required = false) String chuyenKhoaId,
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
-
         logger.info("Received search request - keyword: {}, chuyenKhoaId: {}, page: {}, pageSize: {}",
                 keyword, chuyenKhoaId, page, pageSize);
 
         try {
-            // Validate input
             if (keyword != null && keyword.trim().length() > 50) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("error", "Từ khóa tìm kiếm quá dài (tối đa 50 ký tự).");
@@ -221,7 +218,6 @@ public class BacSyRestApi {
                 }
             }
 
-            // Perform search
             Page<BacSy> bacSyPage;
             if (keyword != null && !keyword.trim().isEmpty() && chuyenKhoaIdInt != null) {
                 bacSyPage = bacSyRepo.findByKeywordAndChuyenKhoa(keyword.trim(), chuyenKhoaIdInt, PageRequest.of(page - 1, pageSize));
@@ -233,7 +229,6 @@ public class BacSyRestApi {
                 bacSyPage = bacSyRepo.findAll(PageRequest.of(page - 1, pageSize));
             }
 
-            // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("bacSyList", bacSyPage.getContent());
             response.put("currentPage", bacSyPage.getNumber() + 1);
@@ -246,7 +241,6 @@ public class BacSyRestApi {
                 response.put("message", "Dữ liệu bác sĩ không hợp lệ (ID null).");
             }
 
-            // Add page numbers for pagination
             if (bacSyPage.getTotalPages() > 0) {
                 List<Integer> pageNumbers = IntStream.rangeClosed(1, bacSyPage.getTotalPages())
                         .boxed()
@@ -255,175 +249,10 @@ public class BacSyRestApi {
             }
 
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             logger.error("Lỗi hệ thống: {}", e.getMessage(), e);
             Map<String, Object> response = new HashMap<>();
             response.put("error", "Lỗi hệ thống: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    @PostMapping("/bacsy/xacNhan")
-    @PreAuthorize("hasAuthority('BAC_SY')")
-    @Transactional
-    public ResponseEntity<?> xacNhanLichKham(@AuthenticationPrincipal CustomUserDetails taiKhoan,
-                                             @RequestParam("id") Integer id) {
-        if (taiKhoan == null || !taiKhoan.hasRole("BAC_SY")) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Bạn không có quyền truy cập!");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
-
-        Optional<LichKham> optionalLichKham = lichKhamRepo.findById(id);
-        if (!optionalLichKham.isPresent()) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Lịch hẹn không tồn tại!");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-        LichKham lichKham = optionalLichKham.get();
-        if (!lichKham.getStatus().equals(Status.CHO_XU_LY)) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Lịch hẹn không ở trạng thái 'Chờ xử lý'!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-
-        String email = lichKham.getBenhNhan() != null ? lichKham.getBenhNhan().getEmail() : null;
-        logger.info("Xác nhận lịch khám ID: {}, Email bệnh nhân: {}", id, email);
-        if (email == null || email.trim().isEmpty() || !isValidEmail(email)) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Email bệnh nhân không hợp lệ hoặc không tồn tại!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-
-        try {
-            if (!lichKham.isPaid()) {
-                Email emailObj = new Email();
-                emailObj.setTo(email);
-                emailObj.setFrom(new InternetAddress("haibonglau411@gmail.com", "MEDICATE"));
-                emailObj.setSubject("Yêu cầu thanh toán lịch khám");
-                emailObj.setTemplate("template-yeu-cau-thanh-toan.html");
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("lichKham", lichKham);
-                emailObj.setProperties(properties);
-                emailSenderService.sendHtmlMessage(emailObj);
-
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Email yêu cầu thanh toán đã được gửi!");
-                return ResponseEntity.ok(response);
-            } else {
-                lichKham.setStatus(Status.DA_XAC_NHAN);
-                lichKhamRepo.save(lichKham);
-
-                Email emailObj = new Email();
-                emailObj.setTo(email);
-                emailObj.setFrom(new InternetAddress("haibonglau411@gmail.com", "MEDICATE"));
-                emailObj.setSubject("Thông tin chi tiết lịch khám");
-                emailObj.setTemplate("template-email.html");
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("lichKham", lichKham);
-                emailObj.setProperties(properties);
-                emailSenderService.sendHtmlMessage(emailObj);
-
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Xác nhận lịch khám thành công!");
-                return ResponseEntity.ok(response);
-            }
-        } catch (SendFailedException e) {
-            logger.error("Gửi email thất bại: {}", e.getMessage(), e);
-            lichKham.setStatus(Status.CHO_XU_LY);
-            lichKhamRepo.save(lichKham);
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Gửi email thất bại!");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        } catch (Exception e) {
-            logger.error("Xác nhận lịch hẹn thất bại: {}", e.getMessage(), e);
-            lichKham.setStatus(Status.CHO_XU_LY);
-            lichKhamRepo.save(lichKham);
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Xác nhận lịch hẹn thất bại: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    @PostMapping("/bacsy/huyLichKham")
-    @PreAuthorize("hasAuthority('BAC_SY')")
-    @Transactional
-    public ResponseEntity<?> huyLichKham(@AuthenticationPrincipal CustomUserDetails taiKhoan,
-                                         @RequestParam("id") Integer id,
-                                         @RequestParam("lyDoHuy") String lyDoHuy) {
-        if (taiKhoan == null || !taiKhoan.hasRole("BAC_SY")) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Bạn không có quyền truy cập!");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
-
-        Optional<LichKham> optionalLichKham = lichKhamRepo.findById(id);
-        if (!optionalLichKham.isPresent()) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Lịch hẹn không tồn tại!");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-        LichKham lichKham = optionalLichKham.get();
-        if (!lichKham.getStatus().equals(Status.CHO_XU_LY)) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Chỉ có thể hủy lịch hẹn ở trạng thái 'Chờ xử lý'!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-
-        String email = lichKham.getBenhNhan() != null ? lichKham.getBenhNhan().getEmail() : null;
-        logger.info("Hủy lịch khám ID: {}, Email bệnh nhân: {}", id, email);
-        if (email == null || email.trim().isEmpty() || !isValidEmail(email)) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Email bệnh nhân không hợp lệ hoặc không tồn tại!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-
-        if (lyDoHuy == null || lyDoHuy.trim().isEmpty()) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Vui lòng nhập lý do hủy!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-
-        if (lyDoHuy.length() > 100) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Lý do hủy không được vượt quá 100 ký tự!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-
-        try {
-            lichKham.setStatus(Status.DA_HUY);
-            lichKhamRepo.save(lichKham);
-
-            Email emailObj = new Email();
-            emailObj.setTo(email);
-            emailObj.setFrom(new InternetAddress("haibonglau411@gmail.com", "MEDICATE"));
-            emailObj.setSubject("Hủy lịch khám");
-            emailObj.setTemplate("template-huy-lich.html");
-            Map<String, Object> properties = new HashMap<>();
-            properties.put("lichKham", lichKham);
-            properties.put("lyDoHuy", lyDoHuy.trim());
-            emailObj.setProperties(properties);
-            emailSenderService.sendHtmlMessage(emailObj);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Hủy lịch khám thành công!");
-            return ResponseEntity.ok(response);
-        } catch (SendFailedException e) {
-            logger.error("Gửi email thất bại: {}", e.getMessage(), e);
-            lichKham.setStatus(Status.CHO_XU_LY);
-            lichKhamRepo.save(lichKham);
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Gửi email thất bại!");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        } catch (Exception e) {
-            logger.error("Hủy lịch hẹn thất bại: {}", e.getMessage(), e);
-            lichKham.setStatus(Status.CHO_XU_LY);
-            lichKhamRepo.save(lichKham);
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Hủy lịch hẹn thất bại: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -496,11 +325,6 @@ public class BacSyRestApi {
 
             String email = lichKham.getBenhNhan() != null ? lichKham.getBenhNhan().getEmail() : null;
             logger.info("Gửi toa thuốc cho lịch khám ID: {}, Email bệnh nhân: {}", lichKhamId, email);
-            if (email == null || !isValidEmail(email)) {
-                Map<String, String> response = new HashMap<>();
-                response.put("error", "Email bệnh nhân không hợp lệ");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
 
             if (request.getChanDoan() == null || request.getChanDoan().trim().isEmpty()) {
                 Map<String, String> response = new HashMap<>();
@@ -531,12 +355,6 @@ public class BacSyRestApi {
                 }
                 Thuoc thuoc = thuocRepo.findById(item.getThuocId())
                         .orElseThrow(() -> new IllegalArgumentException("Thuốc không tồn tại: " + item.getThuocId()));
-
-                if (item.getSoLuong() == null || item.getSoLuong() <= 0) {
-                    Map<String, String> response = new HashMap<>();
-                    response.put("error", "Số lượng thuốc phải lớn hơn 0");
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-                }
 
                 ChiTietToaThuoc chiTiet = new ChiTietToaThuoc();
                 chiTiet.setToaThuoc(toaThuoc);
@@ -585,6 +403,7 @@ public class BacSyRestApi {
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email != null && !email.trim().isEmpty() && email.length() <= 100 && email.matches(emailRegex);
     }
+
     @PostMapping("/bacsy/daKham")
     @PreAuthorize("hasAuthority('BAC_SY')")
     @Transactional
@@ -624,5 +443,205 @@ public class BacSyRestApi {
         }
     }
 
+    @PostMapping("/bacsy/dangKyLichKham")
+    @PreAuthorize("hasAuthority('BAC_SY')")
+    @Transactional
+    public ResponseEntity<?> dangKyLichKham(@AuthenticationPrincipal CustomUserDetails taiKhoan,
+                                            @RequestBody LichKhamBacSy schedule) {
+        if (taiKhoan == null || !taiKhoan.hasRole("BAC_SY")) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Bạn không có quyền truy cập!");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
 
+        try {
+            if (schedule.getNgayKham() == null || schedule.getKhungGio() == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "Ngày khám và khung giờ là bắt buộc!");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Kiểm tra ngày Chủ Nhật và ngày lễ
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(schedule.getNgayKham());
+            boolean isSunday = calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String selectedDate = dateFormat.format(schedule.getNgayKham());
+
+            // Danh sách ngày lễ cố định
+            List<String> holidays = Arrays.asList(
+                    "2025-01-29", // Tết Nguyên Đán (Mùng 1 Tết)
+                    "2025-01-30", // Mùng 2 Tết
+                    "2025-01-31", // Mùng 3 Tết
+                    "2025-04-30", // Ngày Thống nhất
+                    "2025-05-01", // Ngày Quốc tế Lao động
+                    "2025-09-02"  // Quốc khánh
+            );
+
+            if (isSunday || holidays.contains(selectedDate)) {
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "Không thể đăng ký lịch khám vào Chủ Nhật hoặc ngày lễ!");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            TaiKhoan taiKhoanEntity = taiKhoan.getTaiKhoan();
+            BacSy bacSy = bacSyRepo.findByTaiKhoan(taiKhoanEntity);
+            if (bacSy == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "Không tìm thấy thông tin bác sĩ!");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            schedule.setMaBacSy(bacSy.getId());
+
+            // Kiểm tra lịch trùng
+            calendar.setTime(schedule.getNgayKham());
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date startDate = calendar.getTime();
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            Date endDate = calendar.getTime();
+
+            List<LichKhamBacSy> existingSchedules = lichKhamBacSyRepository.findByMaBacSyAndNgayKhamBetween(
+                    bacSy.getId(), startDate, endDate);
+            if (existingSchedules.stream().anyMatch(s -> s.getKhungGio().equals(schedule.getKhungGio()))) {
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "Đã có lịch khám trong khung giờ này!");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            schedule.setThoiGianTao(new Date());
+            schedule.setThoiGianCapNhat(new Date());
+            schedule.setNgayTrongTuan(getDayOfWeek(schedule.getNgayKham()));
+            LichKhamBacSy savedSchedule = lichKhamBacSyRepository.save(schedule);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đăng ký lịch khám thành công!");
+            response.put("id", savedSchedule.getId().toString());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Đăng ký lịch khám thất bại: {}", e.getMessage(), e);
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Đăng ký lịch khám thất bại: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    private String getDayOfWeek(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        String[] days = {"Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"};
+        return days[dayOfWeek - 1];
+    }
+
+    @GetMapping("/bacsy/danhSachLichKhamCuaToi")
+    @PreAuthorize("hasAuthority('BAC_SY')")
+    public ResponseEntity<?> getDanhSachLichKhamCuaToi(@AuthenticationPrincipal CustomUserDetails taiKhoan) {
+        if (taiKhoan == null || !taiKhoan.hasRole("BAC_SY")) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Bạn không có quyền truy cập!");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        try {
+            TaiKhoan taiKhoanEntity = taiKhoan.getTaiKhoan();
+            BacSy bacSy = bacSyRepo.findByTaiKhoan(taiKhoanEntity);
+            if (bacSy == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "Không tìm thấy thông tin bác sĩ!");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            List<LichKhamBacSy> schedules = lichKhamBacSyRepository.findByMaBacSy(bacSy.getId());
+            if (schedules.isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Không có lịch khám nào!");
+                response.put("schedules", schedules);
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.ok(schedules);
+        } catch (Exception e) {
+            logger.error("Lấy danh sách lịch khám thất bại: {}", e.getMessage(), e);
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Lấy danh sách lịch khám thất bại: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/bacsy/capNhatLichKham/{id}")
+    @PreAuthorize("hasAuthority('BAC_SY')")
+    @Transactional
+    public ResponseEntity<?> capNhatLichKham(@PathVariable Long id, @RequestBody LichKhamBacSy schedule,
+                                             @AuthenticationPrincipal CustomUserDetails taiKhoan) {
+        if (taiKhoan == null || !taiKhoan.hasRole("BAC_SY")) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Bạn không có quyền truy cập!");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        try {
+            Optional<LichKhamBacSy> existingSchedule = lichKhamBacSyRepository.findById(id);
+            if (existingSchedule.isPresent()) {
+                TaiKhoan taiKhoanEntity = taiKhoan.getTaiKhoan();
+                BacSy bacSy = bacSyRepo.findByTaiKhoan(taiKhoanEntity);
+                if (bacSy == null || !existingSchedule.get().getMaBacSy().equals(bacSy.getId())) {
+                    Map<String, String> response = new HashMap<>();
+                    response.put("error", "Bạn không có quyền cập nhật lịch này!");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+                }
+                schedule.setId(id);
+                schedule.setMaBacSy(bacSy.getId());
+                schedule.setThoiGianCapNhat(new Date());
+                schedule.setNgayTrongTuan(getDayOfWeek(schedule.getNgayKham()));
+                LichKhamBacSy updatedSchedule = lichKhamBacSyRepository.save(schedule);
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Cập nhật lịch khám thành công!");
+                return ResponseEntity.ok(response);
+            }
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Lịch khám không tồn tại!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            logger.error("Cập nhật lịch khám thất bại: {}", e.getMessage(), e);
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Cập nhật lịch khám thất bại: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @DeleteMapping("/bacsy/xoaLichKham/{id}")
+    @PreAuthorize("hasAuthority('BAC_SY')")
+    @Transactional
+    public ResponseEntity<?> xoaLichKham(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails taiKhoan) {
+        if (taiKhoan == null || !taiKhoan.hasRole("BAC_SY")) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Bạn không có quyền truy cập!");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        try {
+            Optional<LichKhamBacSy> existingSchedule = lichKhamBacSyRepository.findById(id);
+            if (existingSchedule.isPresent()) {
+                TaiKhoan taiKhoanEntity = taiKhoan.getTaiKhoan();
+                BacSy bacSy = bacSyRepo.findByTaiKhoan(taiKhoanEntity);
+                if (bacSy == null || !existingSchedule.get().getMaBacSy().equals(bacSy.getId())) {
+                    Map<String, String> response = new HashMap<>();
+                    response.put("error", "Bạn không có quyền xóa lịch này!");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+                }
+                lichKhamBacSyRepository.deleteById(id);
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Xóa lịch khám thành công!");
+                return ResponseEntity.ok(response);
+            }
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Lịch khám không tồn tại!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            logger.error("Xóa lịch khám thất bại: {}", e.getMessage(), e);
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Xóa lịch khám thất bại: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }

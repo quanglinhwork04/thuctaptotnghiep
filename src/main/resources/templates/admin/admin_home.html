@@ -1,51 +1,474 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Welcome Admin Control Panel</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicate – Admin</title>
+    <!-- Favicon Icon -->
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    <!-- Bootstrap 4.6 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <!-- Font Awesome 5.15 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941YmFaW/dAiS6JXm" crossorigin="anonymous"/>
+    <!-- Google Fonts: Inter & Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #1e3a8a; /* Deep blue for a professional look */
+            --secondary: #64748b; /* Neutral slate for text */
+            --background: #f1f5f9; /* Soft, clean background */
+            --text: #1e293b; /* Darker text for readability */
+            --success: #10b981; /* Vibrant green */
+            --warning: #f59e0b; /* Warm amber */
+            --info: #06b6d4; /* Bright cyan */
+            --accent: #ffffff; /* White for cards */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding-top: 80px;
+            line-height: 1.6;
+        }
+
+        .content-wrapper {
+            padding: 3rem 1.5rem;
+            min-height: calc(100vh - 80px);
+            max-width: 1400px; /* Constrain content width for better focus */
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            background: var(--accent);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            margin-bottom: 2.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-header:hover {
+            transform: translateY(-4px);
+        }
+
+        .dashboard-header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .dashboard-header p {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            font-weight: 400;
+        }
+
+        .stat-card {
+            background: var(--accent);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid transparent;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            opacity: 0.2;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.primary { border-left-color: var(--primary); }
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.info { border-left-color: var(--info); }
+
+        .stat-card .icon {
+            font-size: 2.75rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .stat-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 1rem;
+            color: var(--secondary);
+            font-weight: 400;
+        }
+
+        .chart-container {
+            background: var(--accent);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            height: 450px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-4px);
+        }
+
+        #weeklyChart {
+            max-height: 100%;
+            width: 100%;
+        }
+
+        .action-card {
+            background: var(--accent);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .action-card h5 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(90deg, var(--primary), #3b82f6);
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            display: block;
+            margin: 0.75rem 0;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(90deg, #1e40af, var(--primary));
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-decoration: none;
+        }
+
+        .breadcrumb {
+            background: var(--accent);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            font-size: 0.95rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-item a:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+
+        .sticky-footer {
+            background: var(--accent);
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 0;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 400;
+        }
+
+        .scroll-to-top {
+            background: var(--primary);
+            color: #fff;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            opacity: 0.9;
+            transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+        }
+
+        .scroll-to-top:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: #1e40af;
+        }
+
+        @media (max-width: 992px) {
+            .content-wrapper {
+                padding: 2rem 1rem;
+            }
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            .stat-card h3 {
+                font-size: 1.75rem;
+            }
+            .chart-container {
+                height: 350px;
+            }
+            .action-card h5 {
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-header {
+                padding: 1.75rem;
+            }
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+            .stat-card {
+                padding: 1.25rem;
+            }
+            .stat-card h3 {
+                font-size: 1.5rem;
+            }
+            .chart-container {
+                height: 250px;
+            }
+            .action-btn {
+                font-size: 0.9rem;
+                padding: 0.75rem 1.25rem;
+            }
+            .scroll-to-top {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
 </head>
+<body id="page-top">
+<!-- Navigation -->
+<div th:replace="fragments/fragment :: navAdmin"></div>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
-    <!-- Navigation-->
+<!-- Content -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Breadcrumbs -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/admin/home">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">Bảng điều khiển</li>
+        </ol>
 
-    <div th:replace="fragments/fragment :: navAdmin"></div>
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Xin chào, Admin</h1>
+            <p>Chào mừng đến với bảng điều khiển quản lý phòng khám</p>
+        </div>
 
-    <div class="content-wrapper">
-        <div class="container-fluid">
-            <!-- Breadcrumbs-->
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="#">Dashboard</a>
-                </li>
-                <li class="breadcrumb-item active">My Dashboard</li>
-            </ol>
-            <h2>Xin chào Admin</h2>
-            </div>
-        <!-- /.container-fluid-->
-        <!-- /.content-wrapper-->
-        <footer class="sticky-footer">
-            <div class="container">
-                <div class="text-center">
-                    <small>Copyright © Your Website 2018</small>
+        <!-- Stats Cards -->
+        <div class="row no-gutters">
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="stat-card primary">
+                    <i class="fas fa-calendar-check icon text-primary"></i>
+                    <h3 th:text="${appointmentsToday != null ? appointmentsToday : '0'}"></h3>
+                    <p>Lịch hẹn hôm nay</p>
                 </div>
             </div>
-        </footer>
-        <!-- Scroll to Top Button-->
-        <a class="scroll-to-top rounded" href="#page-top">
-            <i class="fa fa-angle-up"></i>
-        </a>
-        <!-- Logout Modal-->
-        <div th:replace="fragments/fragment :: logoutModal"></div>
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="stat-card success">
+                    <i class="fas fa-users icon text-success"></i>
+                    <h3 th:text="${totalPatients != null ? totalPatients : '0'}"></h3>
+                    <p>Tổng bệnh nhân</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="stat-card warning">
+                    <i class="fas fa-user-md icon text-warning"></i>
+                    <h3 th:text="${totalDoctors != null ? totalDoctors : '0'}"></h3>
+                    <p>Tổng bác sĩ</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="stat-card info">
+                    <i class="fas fa-star icon text-info"></i>
+                    <h3>4.8</h3>
+                    <p>Đánh giá</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart and Actions -->
+        <div class="row no-gutters">
+            <div class="col-lg-8 mb-4">
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="action-card">
+                    <h5 class="card-title">Hành động nhanh</h5>
+                    <a href="/admin/lich-kham-bac-sy" class="action-btn">Xem lịch hẹn</a>
+                    <a href="/admin/bacsy" class="action-btn">Quản lý bác sĩ</a>
+                    <a href="/admin/benhnhan" class="action-btn">Quản lý bệnh nhân</a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="/js/admin.js"></script>
-    </body>
+<!-- Footer -->
+<footer class="sticky-footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-left">
+                <small class="footer-text">Copyright © Clinic System 2025</small>
+            </div>
+            <div class="col-md-6 text-center text-md-right">
+                <small class="footer-text">Hỗ trợ: support@clinic.vn | 0329626107</small>
+            </div>
+        </div>
+    </div>
+</footer>
 
+<!-- Scroll to Top -->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
 
+<!-- Logout Modal -->
+<div th:replace="fragments/fragment :: logoutModalBacSy"></div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.1.slim.min.js" integrity="sha256-w8CvhFs7iHNVUtnSP0YKEg00p9Ih13rlL9zGqvLdePA=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+<script th:src="@{/js/admin.js}"></script>
+<script th:inline="javascript">
+    window.onload = function() {
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+        const weeklyAppointments = /*[[${weeklyAppointments}]]*/ [];
+        const labels = /*[[${labels}]]*/ [];
+
+        console.log('Weekly Appointments:', weeklyAppointments);
+        console.log('Labels:', labels);
+
+        if (!weeklyAppointments || !labels || weeklyAppointments.length === 0 || labels.length === 0) {
+            console.error('Dữ liệu biểu đồ rỗng hoặc không hợp lệ!');
+            document.getElementById('weeklyChart').style.display = 'none';
+            const container = document.querySelector('.chart-container');
+            container.innerHTML += '<p style="color: red; text-align: center;">Không có dữ liệu để hiển thị biểu đồ!</p>';
+            return;
+        }
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số lịch hẹn',
+                    data: weeklyAppointments,
+                    backgroundColor: 'rgba(30, 58, 138, 0.6)', /* Updated to match primary color */
+                    borderColor: 'rgba(30, 58, 138, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Số lượng lịch hẹn',
+                            font: {
+                                family: 'Inter',
+                                size: 14,
+                                weight: '500'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Ngày trong tuần',
+                            font: {
+                                family: 'Inter',
+                                size: 14,
+                                weight: '500'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                family: 'Inter',
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    };
+</script>
+</body>
 </html>

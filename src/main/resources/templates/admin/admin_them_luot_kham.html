@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm lượt khám - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            padding-top: 80px;
+        }
+        .invalid-feedback { display: none; }
+        .form-control.is-invalid ~ .invalid-feedback { display: block; }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/fragment :: navAdmin"></div>
+
+<div class="body flex-grow-1 px-3">
+    <div class="container-lg">
+        <div class="card mb-4">
+            <div class="card-header"><strong>Tạo hoặc chỉnh sửa lịch khám</strong></div>
+            <div class="card-body">
+                <p class="text-medium-emphasis small">
+                    Để tạo lượt khám cho bệnh nhân, có 2 phương thức như sau:
+                </p>
+                <p class="text-medium-emphasis small">
+                    1. Nếu bệnh nhân đến khám trực tiếp, hãy chọn mục <code>Nhu cầu khám bệnh</code>, hệ thống sẽ lựa chọn bác sĩ phù hợp để bệnh nhân được khám sớm nhất có thể.
+                </p>
+                <p class="text-medium-emphasis small">
+                    2. Nếu bệnh nhân đặt khám online và chỉ định bác sĩ thì sẽ được xếp khám với bác sĩ đó.
+                </p>
+                <p class="text-medium-emphasis small">
+                    Trường hợp vừa chọn yêu cầu khám bệnh vừa chỉ định bác sĩ thì hệ thống sẽ ưu tiên xếp khám với bác sĩ đó.
+                </p>
+                <p class="text-medium-emphasis small">
+                    Trường hợp bệnh nhân đặt khám online muốn khám sớm nhất có thể, hãy lựa chọn <code>Để hệ thống lựa chọn</code> và chọn Yêu cầu khám bệnh tương ứng.
+                </p>
+                <p class="alert alert-danger" th:if="${error}" th:text="${error}" role="alert"></p>
+                <p class="alert alert-success" th:if="${ok}" th:text="${ok}" role="alert"></p>
+                <form th:action="@{/admin/luotkham/add}" th:object="${luotKhamRequest}" method="post">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" for="chuyenKhoaId"><code>Phương thức 1:</code> Tạo theo nhu cầu khám bệnh</label>
+                            <select class="form-select" id="chuyenKhoaId" name="chuyenKhoaId" th:field="*{chuyenKhoaId}" required>
+                                <option selected disabled value="">Chọn...</option>
+                                <option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.id}" th:text="${chuyenKhoa.ten}"></option>
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn chuyên khoa.</div>
+                            <span th:if="${#fields.hasErrors('chuyenKhoaId')}" th:errors="*{chuyenKhoaId}" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <p><code>Phương thức 2:</code> Chỉ định bác sĩ</p>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label" for="chuyenKhoaIdForDoctor">Chuyên khoa</label>
+                            <select class="form-select" id="chuyenKhoaIdForDoctor" required>
+                                <option selected disabled value="">Chọn...</option>
+                                <option th:each="chuyenKhoa : ${chuyenKhoaList}" th:value="${chuyenKhoa.id}" th:text="${chuyenKhoa.ten}"></option>
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn chuyên khoa.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="bacSyId">Bác sĩ</label>
+                            <select class="form-select" id="bacSyId" name="bacSyId" th:field="*{bacSyId}">
+                                <option selected disabled value="">Chọn...</option>
+                                <option value="0">Để hệ thống lựa chọn</option>
+                                <option th:each="bacSy : ${bacSyList}" th:value="${bacSy.id}" th:text="${bacSy.hoTen}"></option>
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn bác sĩ hoặc để hệ thống lựa chọn.</div>
+                            <span th:if="${#fields.hasErrors('bacSyId')}" th:errors="*{bacSyId}" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="ngayKham">Ngày</label>
+                            <input autocomplete="off" class="form-control rounded" type="date" id="ngayKham" name="ngayKham" th:field="*{ngayKham}" required>
+                            <div class="invalid-feedback">Vui lòng chọn ngày khám.</div>
+                            <span th:if="${#fields.hasErrors('ngayKham')}" th:errors="*{ngayKham}" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label" for="maDatLich">Mã thẻ bảo hiểm y tế</label>
+                            <input class="form-control" id="maDatLich" name="maDatLich" th:field="*{maDatLich}" type="text" placeholder="Nhập 1 nếu là lượt khám thông thường">
+                            <span th:if="${#fields.hasErrors('maDatLich')}" th:errors="*{maDatLich}" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="benhNhanId">Tên bệnh nhân</label>
+                            <select class="form-select" id="benhNhanId" name="benhNhanId" th:field="*{benhNhanId}" required>
+                                <option selected disabled value="">Chọn...</option>
+                                <option th:each="benhNhan : ${benhNhanList}" th:value="${benhNhan.id}" th:text="${benhNhan.hoTen}"></option>
+                            </select>
+                            <span th:if="${#fields.hasErrors('benhNhanId')}" th:errors="*{benhNhanId}" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label" for="sdtBenhNhan">Số điện thoại</label>
+                            <input class="form-control" id="sdtBenhNhan" name="sdtBenhNhan" th:field="*{sdtBenhNhan}" type="text" placeholder="0979.999.999" required>
+                            <span th:if="${#fields.hasErrors('sdtBenhNhan')}" th:errors="*{sdtBenhNhan}" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="ngaySinhBenhNhan">Ngày sinh bệnh nhân</label>
+                            <input autocomplete="off" class="form-control rounded" type="date" id="ngaySinhBenhNhan" name="ngaySinhBenhNhan" th:field="*{ngaySinhBenhNhan}" required>
+                            <span th:if="${#fields.hasErrors('ngaySinhBenhNhan')}" th:errors="*{ngaySinhBenhNhan}" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-10">
+                            <label class="form-label" for="lyDoKham">Mô tả bệnh lý</label>
+                            <textarea class="form-control" id="lyDoKham" name="lyDoKham" th:field="*{lyDoKham}" rows="3" required></textarea>
+                            <span th:if="${#fields.hasErrors('lyDoKham')}" th:errors="*{lyDoKham}" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label" for="gioKham">Thời gian hẹn khám</label>
+                            <input autocomplete="off" class="form-control rounded" type="datetime-local" id="gioKham" name="gioKham" th:field="*{gioKham}" required>
+                            <span th:if="${#fields.hasErrors('gioKham')}" th:errors="*{gioKham}" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="trangThai">Trạng thái lịch khám</label>
+                            <select class="form-select" id="trangThai" name="trangThai" th:field="*{trangThai}" required>
+                                <option selected disabled value="">Chọn...</option>
+                                <option value="Đang xử lý" class="text-dark text-uppercase font-weight-bold">Đang xử lý</option>
+                                <option value="Đã hủy" class="text-warning text-uppercase font-weight-bold">Hủy</option>
+                                <option value="Đã khám" class="text-success text-uppercase font-weight-bold">Xong</option>
+                            </select>
+                            <span th:if="${#fields.hasErrors('trangThai')}" th:errors="*{trangThai}" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-outline-primary btn-lg btn-block col-sm-2" type="submit" id="button-confirm">
+                            <i class="fas fa-check"></i> Xác nhận
+                        </button>
+                        <button class="btn btn-outline-success btn-lg btn-block col-sm-2" type="reset" id="button-reset">
+                            <i class="fas fa-paint-roller"></i> Làm mới
+                        </button>
+                        <a th:href="@{/admin/luotkham}" class="btn btn-outline-danger btn-lg btn-block col-sm-2" id="button-cancel">
+                            <i class="fas fa-times"></i> Hủy bỏ
+                        </a>
+                    </div>
+                    <input type="hidden" name="autoAssign" id="autoAssign" th:field="*{autoAssign}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="sticky-footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-left">
+                <small class="footer-text">Copyright © Clinic System 2025</small>
+            </div>
+            <div class="col-md-6 text-center text-md-right">
+                <small class="footer-text">Hỗ trợ: support@clinic.vn | 0329626107</small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" defer></script>
+<script>
+    $(document).ready(function() {
+        const holidays = [
+            '2025-01-29', '2025-01-30', '2025-01-31', // Tết Nguyên Đán
+            '2025-04-30', // Ngày Thống nhất
+            '2025-05-01', // Ngày Quốc tế Lao động
+            '2025-09-02'  // Quốc khánh
+        ];
+
+        $('#ngayKham').on('input', function() {
+            const selectedDate = new Date($(this).val());
+            const isSunday = selectedDate.getDay() === 0;
+            const isHoliday = holidays.includes($(this).val());
+            if (isSunday || isHoliday) {
+                alert('Không thể chọn ngày Chủ Nhật hoặc ngày lễ!');
+                $(this).val('');
+            }
+        });
+
+        $('#chuyenKhoaIdForDoctor').on('change', function() {
+            const chuyenKhoaId = $(this).val();
+            if (chuyenKhoaId) {
+                $.ajax({
+                    url: '/admin/api/doctors-by-speciality/' + chuyenKhoaId,
+                    type: 'GET',
+                    success: function(data) {
+                        $('#bacSyId').empty();
+                        $('#bacSyId').append('<option selected disabled value="">Chọn...</option>');
+                        $('#bacSyId').append('<option value="0">Để hệ thống lựa chọn</option>');
+                        data.forEach(function(bacSy) {
+                            $('#bacSyId').append('<option value="' + bacSy.id + '">' + bacSy.hoTen + '</option>');
+                        });
+                    },
+                    error: function() {
+                        alert('Lỗi khi tải danh sách bác sĩ!');
+                    }
+                });
+            } else {
+                $('#bacSyId').empty();
+                $('#bacSyId').append('<option selected disabled value="">Chọn...</option>');
+                $('#bacSyId').append('<option value="0">Để hệ thống lựa chọn</option>');
+            }
+        });
+
+        $('#bacSyId').on('change', function() {
+            if ($(this).val() === '0') {
+                $('#autoAssign').val('true');
+            } else {
+                $('#autoAssign').val('false');
+            }
+        });
+
+        $('form').on('submit', function(e) {
+            const selectedDate = new Date($('#ngayKham').val());
+            const isSunday = selectedDate.getDay() === 0;
+            const isHoliday = holidays.includes($('#ngayKham').val());
+            if (isSunday || isHoliday) {
+                e.preventDefault();
+                alert('Không thể đăng ký lượt khám vào Chủ Nhật hoặc ngày lễ!');
+            }
+        });
+
+        $('#benhNhanId').on('change', function() {
+            const benhNhanId = $(this).val();
+            if (benhNhanId) {
+                const selectedBenhNhan = ${#json.stringify(benhNhanList)}.find(bn => bn.id == benhNhanId);
+                if (selectedBenhNhan) {
+                    $('#sdtBenhNhan').val(selectedBenhNhan.sdt);
+                    $('#ngaySinhBenhNhan').val(selectedBenhNhan.ngaySinh ? new Date(selectedBenhNhan.ngaySinh).toISOString().split('T')[0] : '');
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

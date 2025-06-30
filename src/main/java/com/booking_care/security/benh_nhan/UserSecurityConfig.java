@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Configuration
-@Order(0)
+@Order(1)
 @EnableWebSecurity
 public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -84,8 +84,8 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.authorizeRequests()
-                .antMatchers("/images/**","/fonts/**","/", "/oauth/**", "/dang-nhap", "/api/login", "/js/**", "/css/**", "/bacsy/login", "/api/bacsy/search", "/danh-sach-bac-sy", "/api/chuyen-khoa").permitAll()
-                .antMatchers("/api/**").authenticated()
+                .antMatchers("/api/**","/images/**","/fonts/**","/", "/oauth/**", "/dang-nhap", "/api/login", "/js/**", "/css/**", "/api/bacsy/search", "/danh-sach-bac-sy", "/api/chuyen-khoa", "/bac-sy/{id}", "/api/bacsy").permitAll()
+             //   .antMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
                 .and()
                 .authenticationProvider(authenticationProvider2())

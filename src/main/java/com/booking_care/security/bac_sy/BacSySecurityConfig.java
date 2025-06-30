@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Configuration
-@Order(2)
+@Order(0)
 @EnableWebSecurity
 public class BacSySecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -67,6 +67,7 @@ public class BacSySecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
+                .requestMatcher(request -> request.getRequestURI().startsWith("/bacsy"))
                 .authenticationProvider(authenticationProvider3())
                 .authorizeRequests()
                 .antMatchers("/js/**", "/css/**", "/api/login/bac-sy", "/bacsy/login").permitAll() // Cập nhật /api/login/bac-sy
